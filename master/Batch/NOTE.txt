@@ -1,0 +1,53 @@
+--LOG D
+ALTER TABLE TB_R_LOG_D ALTER COLUMN MESSAGE_ID VARCHAR(14)
+
+
+--TEMP TP
+USE [IPPCS_QA]
+GO
+
+/****** Object:  Table [dbo].[TB_T_TRANSFER_POSTING_TO_ICS]    Script Date: 19/10/2020 13:48:55 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+SET ANSI_PADDING ON
+GO
+
+CREATE TABLE [dbo].[TB_T_TRANSFER_POSTING_TO_ICS](
+	[PROCESS_ID] [varchar](20) NULL,
+	[PROCESS_KEY] [varchar](65) NULL,
+	[SYSTEM_SOURCE] [varchar](20) NULL,
+	[CLIENT_ID] [varchar](3) NULL,
+	[MOVEMENT_TYPE] [varchar](3) NULL,
+	[DOC_DT] [varchar](10) NULL,
+	[POSTING_DT] [varchar](10) NULL,
+	[REF_NO] [varchar](16) NULL,
+	[MAT_DOC_DESC] [varchar](255) NULL,
+	[SND_PART_NO] [varchar](23) NULL,
+	[SND_PROD_PURPOSE_CD] [varchar](5) NULL,
+	[SND_SOURCE_TYPE] [varchar](1) NULL,
+	[SND_PLANT_CD] [varchar](4) NULL,
+	[SND_SLOC_CD] [varchar](6) NULL,
+	[SND_BATCH_NO] [varchar](10) NULL,
+	[RCV_PART_NO] [varchar](23) NULL,
+	[RCV_PROD_PURPOSE_CD] [varchar](5) NULL,
+	[RCV_SOURCE_TYPE] [varchar](1) NULL,
+	[RCV_PLANT_CD] [varchar](4) NULL,
+	[RCV_SLOC_CD] [varchar](6) NULL,
+	[RCV_BATCH_NO] [varchar](10) NULL,
+	[QUANTITY] [varchar](16) NULL,
+	[UOM] [varchar](3) NULL,
+	[DN_COMPLETE_FLAG] [varchar](1) NULL,
+	[CREATED_BY] [varchar](20) NULL,
+	[CREATED_DT] [varchar](19) NULL
+) ON [PRIMARY]
+
+GO
+
+SET ANSI_PADDING OFF
+GO
+
+

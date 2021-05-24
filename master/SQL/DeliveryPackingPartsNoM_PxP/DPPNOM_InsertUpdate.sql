@@ -1,0 +1,17 @@
+﻿execute @RetVal = [sp_DeliveryPackingPartsNoM_PxP_InsertUpdate]
+@@ro_v_err_mesg					= @ErrMesg output
+,@@ri_v_dest_code				=  @DEST_CD         			
+,@@ri_v_cfc						=  @CFC  
+, @@ri_v_part_no				= @PART_NO
+,@@ri_v_part_no_one				=  @PART_NO_ONE      
+,@@ri_v_part_no_two				=  @PART_NO_TWO
+,@@ri_v_part_no_three				=  @PART_NO_THREE
+,@@ri_v_status_cd				=  @STATUS_CD        
+,@@ri_v_proc_cd					=  @PROCESS_CD       
+,@@ri_v_part_name				=  @PART_NAME        
+,@@ri_n_lot_size				=  @LOT_SIZE         
+,@@ri_v_sel_match_ratio			=  @SEL_MATCH_RATIO  
+,@@ri_d_tc_from					=  @TC_FROM          
+,@@ri_d_tc_to					=  @TC_TO           
+,@@ri_v_user_id					=  @userId,
+@@v_screenMode			= @screenMode

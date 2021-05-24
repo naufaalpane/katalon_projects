@@ -1,0 +1,41 @@
+﻿@using System;
+@using Toyota.Common.Web.Platform;
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Partial("_GridView")
+
+@section HeadScript{
+
+}
+
+@section BodyScript{
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        fixedHeader(); //If the table header is more than 1, use this function to freeze the header
+    })
+
+    function doSearch(page) {
+        $.ajax({
+            type: '',
+            url: '',
+            contentType: '',
+            data: '',
+            success: function (data) {
+                fixedHeader();
+            },
+            error: function (data) {
+
+            }
+
+        });
+    }
+</script>
+
+}

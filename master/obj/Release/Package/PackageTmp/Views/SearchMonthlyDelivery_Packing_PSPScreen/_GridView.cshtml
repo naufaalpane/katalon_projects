@@ -1,0 +1,111 @@
+﻿@using GPPSU.Commons.Constants;
+
+@using GPPSU.Models.Common;
+@{
+    PagingModel page = ViewData["Paging"] != null ? (PagingModel)ViewData["Paging"] : new PagingModel(0, 1, 10);
+}
+
+<div class="customContainer" style="margin-top: -10px;">
+    <div class="">
+        <div class="col-md-12">
+            <div class="card customShadow">
+                <div class="preload">
+                    <div class="spinnerDisplay"></div>
+                </div>
+                <div class="card-body sk-loading">
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <button type="button" id="btn-download" class="btn btn-primary" onclick="onDownload()">Download</button>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-12">
+                            <div class="table-responsive customTableBorder">
+                                <div class="tableScroll">
+                                    <table class="customTable text-center" id="tblDetail" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Parts No. <br /> Unit Sign <br /> Part Name</th>
+                                                <th>Status Code</th>
+                                                <th>Car Family Code</th>
+                                                <th>Export Code</th>
+                                                <th></th>
+                                                <th>02</th>
+                                                <th>03</th>
+                                                <th>04</th>
+                                                <th>05</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="3">Line Total </td>
+                                                <td rowspan="3"></td>
+                                                <td rowspan="3"></td>
+                                                <td rowspan="3"></td>
+                                                <td class="text-left">Del/Pack</td>
+                                                <td>9999</td>
+                                                <td>9999</td>
+                                                <td>9999</td>
+                                                <td>9999</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-left">Prod</td>
+                                                <td>9999</td>
+                                                <td>9999</td>
+                                                <td>9999</td>
+                                                <td>9999</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-left">Stok</td>
+                                                <td>9999</td>
+                                                <td>9999</td>
+                                                <td>9999</td>
+                                                <td>9999</td>
+                                            </tr>
+
+                                            @for (int x = 1; x < 25; x++)
+                                            {
+                                                <tr class="startStickyTd">
+                                                    <td rowspan="3" class="text-left">12000-0C111-00<br /><br />Engine Assy </td>
+                                                    <td rowspan="3">1</td>
+                                                    <td rowspan="3">522 V</td>
+                                                    <td rowspan="3">E</td>
+                                                    <td class="text-left">Del/Pack</td>
+                                                    <td>9999</td>
+                                                    <td>9999</td>
+                                                    <td>9999</td>
+                                                    <td>9999</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-left">Prod</td>
+                                                    <td>9999</td>
+                                                    <td>9999</td>
+                                                    <td>9999</td>
+                                                    <td>9999</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-left">Stock</td>
+                                                    <td>9999</td>
+                                                    <td>9999</td>
+                                                    <td>9999</td>
+                                                    <td>9999</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row pr-2">
+                        <div class="col-md-12">
+                            <div class="form-group-sm">
+                                @Html.Partial("_UIPaging", page)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,14 @@
+﻿SELECT * FROM(
+
+SELECT 
+	ROW_NUMBER() OVER (ORDER BY CREATED_DT desc) as r, 
+	COMPANY_CD, 
+	HEIJUNKA_CD, 
+	HEIJUNKA_NAME
+FROM TB_M_HEIJUNKA
+WHERE 1=1
+	AND ((@HEIJUNKA_CD is null OR @HEIJUNKA_CD = '') OR (HEIJUNKA_CD like '%' +@HEIJUNKA_CD+'%' ))
+)	tb
+where 1 = 1 and tb.r between @PageNumber and @PageSize
+ORDER BY HEIJUNKA_CD ASC , HEIJUNKA_NAME ASC
+

@@ -1,0 +1,62 @@
+﻿@using System;
+@using Toyota.Common.Web.Platform;
+@using GPPSU.Controllers;
+@using GPPSU.Commons.Constants;
+@using GPPSU.Models.DeliveryPackingPlanCreation;
+
+@using GPPSU.Models.Common;
+
+
+@{
+    //List<DeliveryPackingPlanCreation> listData = (List<DeliveryPackingPlanCreation>)ViewData["DPPCData"];
+
+    List<DeliveryPackingPlanCreation> listData = (List<DeliveryPackingPlanCreation>)ViewData["DPPCData"] != null ? (List<DeliveryPackingPlanCreation>)ViewData["DPPCData"] : new List<DeliveryPackingPlanCreation>();
+
+    int i = 1;
+
+    
+
+
+}
+
+<div class="table-responsive" style="margin-bottom: 10px; border-radius: 7px 7px 0px 0px;">
+    <div class="tableScroll">
+        <table class="customTable text-center" width="100%">
+            <thead>
+                <tr>
+                    <th>Importer</th>
+                    <th>ODT</th>
+                    <th>Car Family Code</th>
+                    <th>Status Code</th>
+                    <th>Ready</th>
+                </tr>
+            </thead>
+            <tbody id="isOK">
+                @if (listData.Count < 1)
+                {
+                    <tr>
+                        <td colspan="5" class="text-center"> No Data Found</td>
+                    </tr>
+                }
+                else
+                {
+
+                    foreach (DeliveryPackingPlanCreation data in listData)
+                    {
+
+                        <tr>
+                            <td>@data.IMPORTER_CD</td>
+                            <td>@data.ORD_TYPE</td>
+                            <td>@data.CFC</td>
+                            <td>@data.STATUS_CD</td>
+                            <td>@data.READY</td>
+                            <td hidden>@data.NQC_EXE_DT</td>
+                        </tr>
+                        i++;
+                    }
+
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

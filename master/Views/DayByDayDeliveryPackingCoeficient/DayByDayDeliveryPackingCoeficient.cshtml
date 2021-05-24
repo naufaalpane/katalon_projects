@@ -1,0 +1,1241 @@
+﻿@using System;
+@using Toyota.Common.Web.Platform;
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+@section HeadScript{
+
+}
+
+@Html.Partial("_SearchCriteria")
+
+<div id="gridTableCourse">
+    @Html.Partial("_GridView")
+</div>
+
+<!-- Modal Upload-->
+<div id="uploadDataFilePopup" class="modal fade" role="dialog" aria-hidden="true" aria-labelledby="basicModal">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="popup-title">Upload Area</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- Dropzone AREA-->
+                        <div id="actions" class="row">
+                            <div class="col-md-12 fileinput-button mb-2">
+                                <div class="row justify-content-center" style="padding: 5px;">
+                                    <i class="fa fa-cloud-upload-alt fa-5x" style="opacity: 0.3"></i>
+                                </div>
+                                <div class="row justify-content-center" style="padding: 5px;">
+                                    <span style="color: #999; font-size: 20px;"><i class="fa fa-caret-right blue" style="opacity: 0.7"></i> Drop file to upload <small>(or click)</small> </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="table table-striped" id="previews">
+                                <div id="template" class="file-row">
+                                    <div>
+                                        <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width:0%;" data-dz-uploadprogress><span class="progress-text"></span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Dropzone AREA-->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <div class="text-left">
+
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <div class="text-right">
+                        <button type="button" class="btn btn-info" id="linkDownloadTemplate">Download Template </button>
+                        <button type="button" id="btnUploadPopupClose" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Upload end-->
+
+<div id="divPreviewExcel">
+    @Html.Partial("_ModalPreviewExcelUpload")
+</div>
+
+@section BodyScript{
+
+    <script type="text/javascript" src="@Url.Content("~/Content/js/common.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/js/jquery-msgbox/jquery.msgBox.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/tdk/jquery.filedownload.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/tdk/jquery.bootstrap-growl.min.js")"></script>
+
+    <script type="text/javascript" src="@Url.Content("~/Content/Bootstrap/js/date-time/bootstrap-datepicker.js")"></script>
+
+    <script type="text/javascript">
+
+        var gScreenMode = "";
+
+        var trBaseColor;
+        var dataEditCopy = [];
+        var tableColspan;
+
+        $("#insertLine").prop("disabled", true);
+        $("#btn_download").prop("disabled", true);
+
+        $(document).ready(function () {
+
+            var previewNode = document.querySelector("#template");
+            previewNode.id = "";
+            var previewTemplate = previewNode.parentNode.innerHTML;
+            previewNode.parentNode.removeChild(previewNode);
+
+            var myDropzone = new Dropzone("#actions", {
+                url: "@Html.Toyota().Page.GetActionUrl("UploadDataFile")",
+                paramName: "file",
+                maxFiles: 1,
+                acceptedFiles: ".xls",
+                addRemoveLinks: false,
+                previewTemplate: previewTemplate,
+                autoQueue: true,
+                clickable: ".fileinput-button",
+                uploadprogress: function (file, progress, bytesSent) {
+                    if (file.previewElement) {
+                        var progressElement = file.previewElement.querySelector("[data-dz-uploadprogress]");
+                        progressElement.style.width = progress + "%";
+                        progressElement.querySelector(".progress-text").textContent = Math.round(progress) + "%";
+                    }
+                },
+                 success: function (file, returnResult) {
+                    onUploadDataFileSuccess(returnResult);
+                },
+                complete: function () {
+
+                },
+                error: function (file, errormessage) {
+                    if (file.previewElement) {
+                        showErrorMesgGrowl(errormessage);
+                    }
+                },
+            });
+
+            myDropzone.on("complete", function (file) {
+                myDropzone.removeFile(file);
+            });
+
+            $(document).one('ajaxloadstart.page', function (e) {
+                try {
+                    myDropzone.destroy();
+                } catch (e) { }
+            });
+
+
+            $( "#txtMonthYear" ).datepicker({
+                format: 'yyyymm',
+                autoclose: true,
+                minViewMode: 'months',
+                container:'#MonthDatePicker'
+            });
+
+
+
+            $("#noDataFound").remove();
+
+        $("#bodySearch > tr").hide();
+
+            $(document).on("click", "#btnUpload", function () {
+            gScreenMode = "Upload";
+            $("#uploadDataFilePopup").modal();
+        });
+
+
+            fixedHeader(); //If the table header is more than 1, use this function to freeze the header
+            $(document).on("click", "#insertLine", function () {
+                gScreenMode = "Add";
+                if (totalData == 0) {
+                    var tableRow = document.querySelector("#noDataFound");
+                    tableColspan = document.querySelector(".customTable tbody tr");
+
+                    $(".customTable tbody tr").remove();
+                    $(".customTable tbody").append(tableRow);
+                    $("#noDataFound").show();
+
+                    $(".customTable th").css({ "top": "" });
+                    $(".tableScroll").scrollLeft(0).scrollTop(0);
+                    fixedHeader();
+
+                    $("#noDataFound, #noDataFound td.stickyColumn").css("background", "#f2f2f2");
+                    $(".initialBtn").prop("disabled", true);
+                    $("input[type=checkbox]").prop("checked", false);
+                } else {
+                    addTheFirstRow(this);
+                }
+                dataEditCopy.length = 0;
+            });
+
+            $(document).on("click", "#cancelSubmit", function () {
+                var tr = $(this).closest("tr");
+                $("#tblDetail tbody tr").css({ "filter": "", "color": "#878787" });
+                $(".initialBtn").prop("disabled", false);
+                if (tr.attr("class") == "editLine") {
+                    tr.each(function (i, e) {
+                        $(e).removeClass($(e).attr("class"));
+                        $(e).css("background-color", trBaseColor);
+                        $(e).find("td.stickyColumn").css("background-color", trBaseColor);
+                        var i = $(e).children('td');
+                        for (var x = 2; x <= i.length; x++) {
+                            var val = i.eq(x).children().val();
+                            i.eq(x).html(val);
+                        }
+                        i.eq(1).html(initialButton);
+                    });
+                } else {
+                    if (totalData == 0) {
+                        $("#noDataFound").hide();
+                        $(".customTable tbody").prepend(tableColspan);
+                    } else {
+                        $(this).closest("tr").remove();
+                    }
+                }
+                $(".customTable tr:nth-child(even), .customTable tbody tr:nth-child(even) td.stickyColumn").css("background", "#f2f2f2");
+            });
+
+
+            $(document).on("click", "#editLine", function () {
+                gScreenMode = "Edit";
+
+                dataEditCopy.length = 0;
+                var tr = initializeEditCopyLine(this);
+                tr.addClass($(this).attr("id"));
+                loopThrougTableRow(tr, $(this).attr('id'));
+
+                trBaseColor = getComputedStyle(document.querySelector("." + $(this).attr('id') + "")).backgroundColor;
+                $(".customTable tr, .customTable tbody td.stickyColumn").css("background", "#fff");
+                tr.css("background-color", "#E9E9E9");
+                $(tr).find("td.stickyColumn").css("background-color", "#E9E9E9");
+            });
+
+            $(document).on("click", "#copyLine", function () {
+                dataEditCopy.length = 0;
+                addTheFirstRow(this);
+            });
+
+            $(document).on("click", "#btnDelMultiple", function () {
+                var checked = $(".grid-checkbox-body").length;
+
+                if (checked < 1) {
+                    showErrorMesgGrowl("Choose one or more data(s) to be delete!");
+                }
+                else {
+                    //showConfirmMesg("Are you sure you want to delete the record?", onConfirmDelete, "Delete Confirmation");
+                    $.messagebox.show(
+                        "Delete Data",
+                        "MCSTSTD014C: Are you sure you want to delete the record(s) ?",
+                        "INF",
+                        "CONFIRM",
+                        "onConfirmDelete()",
+                        ""
+                    );
+                    //$("#deleteConfirmation").modal();
+                }
+            });
+
+
+            $(document).on("click", "#btnSave", function () {
+
+                var result;
+
+                //var tcFrom = $("#txtDEST_CD").val();
+                //svar tcTo = $("#txtPROCESS_CD").val();
+
+                var tr = $(this).closest("tr");
+                //$("#tblDetail tbody tr").css("opacity", "1");
+                //$(".initialBtn").prop("disabled", false);
+                if (tr.attr("class") == "editLine") {
+                    result = onSave(gScreenMode);
+                    if (result == true) {
+                        $("#tblDetail tbody tr").css("opacity", "1");
+                        $(".initialBtn").prop("disabled", false);
+                        tr.each(function (i, e) {
+                            $(e).removeClass($(e).attr("class"));
+                            $(e).css("background-color", trBaseColor);
+                            var i = $(e).children('td');
+                            for (var x = 2; x <= i.length; x++) {
+                                var val = i.eq(x).children().val();
+                                i.eq(x).html(val);
+                            }
+                        });
+                        doSearch(1);
+                    }
+
+                }
+                else {
+                    result = onSave(gScreenMode);
+                    console.log(result);
+                    if (result == true) {
+                        $("#tblDetail tbody tr").css("opacity", "1");
+                        $(".initialBtn").prop("disabled", false);
+                        $(this).closest("tr").remove();
+                        doSearch(1);
+                    }
+
+                }
+                //onSave(gScreenMode);
+            });
+
+
+        $(document).on("click", "#linkDownloadTemplate", function () {
+            popUpProgressShow();
+            $.fileDownload('@Url.Content("~/DayByDayDeliveryPackingCoeficient/DownloadTemplate")', {
+                httpMethod: "POST",
+                data: {},
+                successCallback: function (url) {
+                    popUpProgressHide();
+                },
+                failCallback: function (responseHtml, url) {
+                    popUpProgressHide();
+                    var returnResult = JSON.parse(responseHtml.replace("<pre>", "").replace("</pre>", ""));
+                    handleAjaxResultGrowl(returnResult, "Download Template");
+                }
+            });
+        });
+            
+
+        $(document).on('click', '#importExcel', function () {
+            var params = new Object();
+            var data = new Object();
+            //var method = "IMPORT";
+            params.ScreenMode = gScreenMode;
+            params.data = data;
+            var i = 1;
+            data.listData = []
+
+            $('#tblPreview tbody tr').each(function () {
+                var dtl = new Object();
+                dtl.DEST_CD = $(this).find('input#DEST_CD_' + i).val();
+                dtl.PROCESS_CD = $(this).find('input#PROCESS_CD_' + i).val();
+                dtl.YYMM = $(this).find('input#YYMM_' + i).val();
+
+                dtl.DAY_ALOC_RATIO_01 = $("#DAY_ALOC_RATIO_01_" + i).val();
+                dtl.DAY_ALOC_RATIO_02 = $("#DAY_ALOC_RATIO_02_" + i).val();
+                dtl.DAY_ALOC_RATIO_03 = $("#DAY_ALOC_RATIO_03_" + i).val();
+                dtl.DAY_ALOC_RATIO_04 = $("#DAY_ALOC_RATIO_04_" + i).val();
+                dtl.DAY_ALOC_RATIO_05 = $("#DAY_ALOC_RATIO_05_" + i).val();
+                dtl.DAY_ALOC_RATIO_06 = $("#DAY_ALOC_RATIO_06_" + i).val();
+                dtl.DAY_ALOC_RATIO_07 = $("#DAY_ALOC_RATIO_07_" + i).val();
+                dtl.DAY_ALOC_RATIO_08 = $("#DAY_ALOC_RATIO_08_" + i).val();
+                dtl.DAY_ALOC_RATIO_09 = $("#DAY_ALOC_RATIO_09_" + i).val();
+                dtl.DAY_ALOC_RATIO_10 = $("#DAY_ALOC_RATIO_10_" + i).val();
+                dtl.DAY_ALOC_RATIO_11 = $("#DAY_ALOC_RATIO_11_" + i).val();
+                dtl.DAY_ALOC_RATIO_12 = $("#DAY_ALOC_RATIO_12_" + i).val();
+                dtl.DAY_ALOC_RATIO_13 = $("#DAY_ALOC_RATIO_13_" + i).val();
+                dtl.DAY_ALOC_RATIO_14 = $("#DAY_ALOC_RATIO_14_" + i).val();
+                dtl.DAY_ALOC_RATIO_15 = $("#DAY_ALOC_RATIO_15_" + i).val();
+                dtl.DAY_ALOC_RATIO_16 = $("#DAY_ALOC_RATIO_16_" + i).val();
+                dtl.DAY_ALOC_RATIO_17 = $("#DAY_ALOC_RATIO_17_" + i).val();
+                dtl.DAY_ALOC_RATIO_18 = $("#DAY_ALOC_RATIO_18_" + i).val();
+                dtl.DAY_ALOC_RATIO_19 = $("#DAY_ALOC_RATIO_19_" + i).val();
+                dtl.DAY_ALOC_RATIO_20 = $("#DAY_ALOC_RATIO_20_" + i).val();
+                dtl.DAY_ALOC_RATIO_21 = $("#DAY_ALOC_RATIO_21_" + i).val();
+                dtl.DAY_ALOC_RATIO_22 = $("#DAY_ALOC_RATIO_22_" + i).val();
+                dtl.DAY_ALOC_RATIO_23 = $("#DAY_ALOC_RATIO_23_" + i).val();
+                dtl.DAY_ALOC_RATIO_24 = $("#DAY_ALOC_RATIO_24_" + i).val();
+                dtl.DAY_ALOC_RATIO_25 = $("#DAY_ALOC_RATIO_25_" + i).val();
+                dtl.DAY_ALOC_RATIO_26 = $("#DAY_ALOC_RATIO_26_" + i).val();
+                dtl.DAY_ALOC_RATIO_27 = $("#DAY_ALOC_RATIO_27_" + i).val();
+                dtl.DAY_ALOC_RATIO_28 = $("#DAY_ALOC_RATIO_28_" + i).val();
+                dtl.DAY_ALOC_RATIO_29 = $("#DAY_ALOC_RATIO_29_" + i).val();
+                dtl.DAY_ALOC_RATIO_30 = $("#DAY_ALOC_RATIO_30_" + i).val();
+                dtl.DAY_ALOC_RATIO_31 = $("#DAY_ALOC_RATIO_31_" + i).val();
+
+                
+
+                //dtl.COMPANY_CD = $(this).find('#Company_Code_' + i).val();
+                //dtl.COMPANY_CD = $("#Company_Code_"+ i).val();
+                // dtl.SEQ_NO = $(this).find('#Seq_No_' + i).val();
+                //dtl.SEQ_NO = $("#Seq_No_"+ i).val();
+
+                data.listData.push(dtl);
+                i++;
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Content("DayByDayDeliveryPackingCoeficient/AddEditSave")',
+                contentType: 'application/json',
+                dataType: "json",
+                traditional: true,
+                data: JSON.stringify(params),
+                beforeSend: function () {
+                    popUpProgressShow();
+                    console.log(params);
+                },
+                success: function (data) {
+                    if (data.Result == "ERROR") {
+                        showErrorMesgGrowl(data.ErrMesgs);
+                        $("#previewUploadExcel").modal("hide");
+                        doSearch(1);
+                    }
+                    else {
+                        showSuccessMesgGrowl("Save Success");
+                        onSaveSuccess();
+                    }
+                    popUpProgressHide();
+                },
+                error: function (data) {
+                    popUpProgressHide();
+                    showErrorMesgGrowl(data.ErrMesgs);
+                },
+                complete: function () {
+                    popUpProgressHide();
+                }
+            });
+        });
+
+
+        });
+
+        //Search & Clear
+
+         function doSearch(page) {
+            var validation = validate();
+            if (validation) {
+                $("#insertLine").prop("disabled", false);
+                $("#btn_download").prop("disabled", false);
+                popUpProgressShow();
+                 $.ajax({
+                    type: "POST",
+                    url: "@Html.Toyota().Page.GetActionUrl("Search")",
+                    data: {
+                        YYMM: $("#txtMonthYear").val(),
+                        rowsPerPage: $("#cbodisplay").val(),
+                        currentPage: page
+                    },
+                    success: function (data) {
+                        $("#gridTableCourse").html(data);
+                        fixedHeader();
+                        popUpProgressHide();
+                    },
+                    error: function (data) {
+                        popUpProgressHide();
+                        console.log(data);
+                    }
+                });
+            }
+        }
+
+        function validate() {
+            var valid = true;
+
+            if ($("#txtMonthYear").val() == null || $("#txtMonthYear").val() == "" || $("#txtMonthYear").val() == undefined) {
+                $.messagepanel.show("Year Month should not be empty");
+                valid = false;
+            }
+            return valid;
+        }
+
+
+
+
+        function onClear() {
+            $("#txtMonthYear").val('');
+            popUpProgressShow();
+            $.ajax({
+               type: "POST",
+               url: "@Html.Toyota().Page.GetActionUrl("Search")",
+               data: {
+                   YYMM: "nodata",
+                   rowsPerPage: $("#cbodisplay").val(),
+                   currentPage: 1,
+                   screenMode: "clear"
+               },
+               success: function (data) {
+                   $("#gridTableCourse").html(data);
+                   fixedHeader();
+                   $("#insertLine").prop("disabled", true);
+                   $("#btn_download").prop("disabled", true);
+                   popUpProgressHide();
+               },
+               error: function (data) {
+                   popUpProgressHide();
+                   console.log(data);
+               }
+           });
+            //doSearch(1);
+        }
+
+        //Add Edit Save
+
+        function onSave(mode) {
+
+            var result = true;
+
+            var params = new Object();
+            var datas = new Object();
+            var daySplit = "";
+
+            params.ScreenMode = gScreenMode;
+            params.data = datas;
+            var errorinf = 0;
+
+            datas.DEST_CD = $("#txtDEST_CD").val();
+            datas.PROCESS_CD = $("#cmbPROCESS_CD").val();
+            datas.YYMM = $("#txtMonthYear").val();
+            datas.DAILYRATIOLIST = [];
+
+            datas.DAY_ALOC_RATIO_01 = $("#txtDAY_1").val();
+            datas.DAY_ALOC_RATIO_02 = $("#txtDAY_2").val();
+            datas.DAY_ALOC_RATIO_03 = $("#txtDAY_3").val();
+            datas.DAY_ALOC_RATIO_04 = $("#txtDAY_4").val();
+            datas.DAY_ALOC_RATIO_05 = $("#txtDAY_5").val();
+            datas.DAY_ALOC_RATIO_06 = $("#txtDAY_6").val();
+            datas.DAY_ALOC_RATIO_07 = $("#txtDAY_7").val();
+            datas.DAY_ALOC_RATIO_08 = $("#txtDAY_8").val();
+            datas.DAY_ALOC_RATIO_09 = $("#txtDAY_9").val();
+            datas.DAY_ALOC_RATIO_10 = $("#txtDAY_10").val();
+            datas.DAY_ALOC_RATIO_11 = $("#txtDAY_11").val();
+            datas.DAY_ALOC_RATIO_12 = $("#txtDAY_12").val();
+            datas.DAY_ALOC_RATIO_13 = $("#txtDAY_13").val();
+            datas.DAY_ALOC_RATIO_14 = $("#txtDAY_14").val();
+            datas.DAY_ALOC_RATIO_15 = $("#txtDAY_15").val();
+            datas.DAY_ALOC_RATIO_16 = $("#txtDAY_16").val();
+            datas.DAY_ALOC_RATIO_17 = $("#txtDAY_17").val();
+            datas.DAY_ALOC_RATIO_18 = $("#txtDAY_18").val();
+            datas.DAY_ALOC_RATIO_19 = $("#txtDAY_19").val();
+            datas.DAY_ALOC_RATIO_20 = $("#txtDAY_20").val();
+            datas.DAY_ALOC_RATIO_21 = $("#txtDAY_21").val();
+            datas.DAY_ALOC_RATIO_22 = $("#txtDAY_22").val();
+            datas.DAY_ALOC_RATIO_23 = $("#txtDAY_23").val();
+            datas.DAY_ALOC_RATIO_24 = $("#txtDAY_24").val();
+            datas.DAY_ALOC_RATIO_25 = $("#txtDAY_25").val();
+            datas.DAY_ALOC_RATIO_26 = $("#txtDAY_26").val();
+            datas.DAY_ALOC_RATIO_27 = $("#txtDAY_27").val();
+            datas.DAY_ALOC_RATIO_28 = $("#txtDAY_28").val();
+
+            if ("#txtDAY_29" != null) {
+                datas.DAY_ALOC_RATIO_29 = $("#txtDAY_29").val();
+            }
+            else {
+                datas.DAY_ALOC_RATIO_29 = 0;
+            }
+
+            if ("#txtDAY_30" != null) {
+                datas.DAY_ALOC_RATIO_30 = $("#txtDAY_30").val();
+            }
+            else {
+                datas.DAY_ALOC_RATIO_30 = 0;
+            }
+
+            if ("#txtDAY_31" != null) {
+                datas.DAY_ALOC_RATIO_31 = $("#txtDAY_31").val();
+            }
+            else {
+                datas.DAY_ALOC_RATIO_31 = 0;
+            }
+
+
+            if (datas.DEST_CD == '' || datas.DEST_CD == null) {
+                showErrorMesgGrowl("DESTINATION CODE should not be empty");
+                result = false;
+            }
+
+            if (datas.PROCESS_CD == '' || datas.PROCESS_CD == null) {
+                showErrorMesgGrowl("PROCESS CODE should not be empty, choose select M or K");
+                result = false;
+            }
+
+            if (datas.YYMM == '' || datas.YYMM == null) {
+                showErrorMesgGrowl("Year Month should not be empty");
+                result = false;
+            }
+
+            if (result != false) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Content("DayByDayDeliveryPackingCoeficient/AddEditSave")',
+                    contentType: 'application/json',
+                    dataType: "json",
+                    traditional: true,
+                    data: JSON.stringify(params),
+                    beforeSend: function () {
+                        popUpProgressShow();
+                        //console.log(params);
+                    },
+                success: function (data) {
+                   // console.log(data.Result);
+                         if (data.Result == "ERROR") {
+                             showErrorMesgGrowl(data.ErrMesgs);
+                         }
+                         else {
+                             showSuccessMesgGrowl("Save Success");
+                             onSaveSuccess();
+                        }
+                        popUpProgressHide();
+                    },
+                    error: function (data) {
+                        popUpProgressHide();
+                        showErrorMesgGrowl(data.ErrMesgs);
+
+                    },
+                    complete: function () {
+
+                        popUpProgressHide();
+                    }
+            });
+
+
+
+            }
+
+            return result;
+
+        }
+
+
+        //Delete
+
+        function onDeleteSingle(PROCESS_CD, COMPANY_CD, DEST_CD,YYMM) {
+
+            $.messagebox.show(
+                "Delete Data",
+                "MCSTSTD014C: Are you sure you want to delete the record ?",
+                "INF",
+                "CONFIRM",
+                "onConfirmDeleteSingle(" + "'" + PROCESS_CD + "'," + "'" + COMPANY_CD + "'," + "'" + DEST_CD + "'," + "'"+YYMM+"'"+ ")",
+                ""
+            );
+        }
+
+        function onConfirmDeleteSingle(PROCESS_CD, COMPANY_CD, DEST_CD,YYMM) {
+
+            popUpProgressShow();
+
+            var listData = [];
+            //var id = "";
+
+            var data = new Object();
+            data.listData = [];
+
+            var Data1 = new Object();
+            Data1.PROCESS_CD = PROCESS_CD;
+            Data1.COMPANY_CD = COMPANY_CD;
+            Data1.DEST_CD = DEST_CD;
+            Data1.YYMM = YYMM;
+
+            data.listData.push(Data1);
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Content("DayByDayDeliveryPackingCoeficient/Delete")',
+                contentType: "application/json",
+                dataType: "json",
+                traditional: true,
+                data: JSON.stringify(data),
+                beforeSend: function () {
+                    popUpProgressShow();
+                },
+                success: function (data) {
+                    if (data.Result == "ERROR") {
+                        showErrorMesgGrowl(data.ErrMesgs);
+                    }
+                    else {
+                        showSuccessMesgGrowl("Delete Success");
+                        popUpProgressHide();
+                        doSearch(1);
+                    }
+                },
+                error: function (data) {
+                    showErrorMesgGrowl(data.ErrMesgs);
+                },
+                complete: function () {
+                    popUpProgressHide();
+                    $("#deleteConfirmation").modal("hide");
+                }
+            });
+
+
+        }
+
+         // Delete Multiple
+    function onConfirmDelete() {
+            popUpProgressShow();
+
+            var listData = [];
+            var id = "";
+
+            var data = new Object();
+            data.listData = [];
+
+            $(".grid-checkbox-body:checked").each(function () {
+                var Data1 = new Object();
+
+
+                Data1.COMPANY_CD = $(this).attr('data-companyCd');
+                Data1.PROCESS_CD = $(this).attr('data-processCd');
+                Data1.DEST_CD = $(this).attr('data-destCd');
+                Data1.YYMM = $(this).attr('data-yymm');
+
+
+                data.listData.push(Data1);
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Content("DayByDayDeliveryPackingCoeficient/Delete")',
+                contentType: "application/json",
+                dataType: "json",
+                traditional: true,
+                data: JSON.stringify(data),
+                beforeSend: function () {
+                    popUpProgressShow();
+                },
+                success: function (data) {
+                    if (data.Result == "ERROR") {
+                        showErrorMesgGrowl(data.ErrMesgs);
+                    }
+                    else {
+                        showSuccessMesgGrowl("Delete Success");
+                        doSearch(1);
+                    }
+                },
+                error: function (data) {
+                    showErrorMesgGrowl(data.ErrMesgs);
+                },
+                complete: function () {
+                    popUpProgressHide();
+                    $("#deleteConfirmation").modal("hide");
+                }
+            });
+        }
+
+
+        function addTheFirstRow(e) {
+            btnAddRow_onClick(e);
+            $(".initialBtn").prop("disabled", true);
+            $("input[type=checkbox]").prop("checked", false);
+        }
+
+        function btnAddRow_onClick(classAttr) {
+            var $class = $(classAttr).attr('id');
+            var tr = $class == 'insertLine' ? $("#tblDetail tbody tr:first") : $(classAttr).closest("tr");
+            $(".tableScroll").scrollTop(0);
+            $(".customTable tr, .customTable tbody td.stickyColumn").css("background", "#fff");
+
+            tr.clone().addClass($class).css("background-color", "#E9E9E9").prependTo("#tblDetail tbody");
+            $("#tblDetail tbody tr." + $class).find("td.stickyColumn").css("background-color", "#E9E9E9");
+
+
+            loopThrougTableRow($("#tblDetail tbody tr." + $class + ""), $class);
+        }
+
+        function initializeEditCopyLine(e) {
+            var tr = $(e).closest("tr");
+            $("input[type=checkbox]").prop("checked", false);
+            $(".initialBtn").prop("disabled", true);
+
+            return tr;
+        }
+
+        function loopThrougTableRow(tr, classAttr) {
+            tr.each(function (i, e) {
+                var i = $(e).children('td');
+                var tgl = 1;
+                for (var x = 2; x < i.length; x++) {
+
+                    var val = classAttr == "insertLine" ? "" : i.eq(x).text();
+
+                    if (x == 2) {
+                        i.eq(x).html("<input type ='text' id='txtDEST_CD' class='form-control " + x + " text-center' value='" + val + "'/>");
+                    }
+                    else if (x == 3) {
+                        i.eq(x).html("<select class='form-control " + x + " text-center' id='cmbPROCESS_CD'' value='" + val.trim() + "'>" +
+                            "<option value = 'K' selected>K</option>" +
+                            "<option value = 'M'>M</option>" +
+                            "<option value = '*'>*</option>" +
+                            "</select>");
+                    }
+                    else {
+                        i.eq(x).html("<input type ='text' id='txtDAY_" + tgl + "' class='form-control " + x + " text-center' value='" + val + "'/>");
+                        tgl++;
+                    }
+                    dataEditCopy.push(val);
+
+                }
+
+                if (gScreenMode == "Edit") {
+                    i.eq(2).children().prop("disabled", true);
+                }
+                i.eq(1).html(modifiedButton);
+            });
+            $("#tblDetail tbody tr:not(." + tr.attr("class") + ")").css({ "filter": "grayscale(50%)", "color": "#E6E6E6" });
+        }
+
+        function onDownload() {
+        //$.messagepanel.show("Download Success");
+       popUpProgressShow();
+       //$.messagepanel.show("Download Success");
+       $.fileDownload('@Url.Content("DayByDayDeliveryPackingCoeficient/DownloadFileExcel")', {
+	           httpMethod: "POST",
+	           data: {
+                   YYMM: $("#txtMonthYear").val(),
+	               RowsPerPage: $("#cbodisplay").val(),
+	               CurrentPage: 1
+	           },
+               successCallback: function (data) {
+                   if (data == "ERROR") {
+                        $.ajax({
+                            type: "POST",
+                            url: "@Html.Toyota().Page.GetActionUrl("errorDownload")",
+                            async: false,
+                            data: {
+
+                            },
+                            success: function (data) {
+                                $.messagepanel.showContent(data);
+                            },
+                            error: function (data) {
+                                $.messagepanel.show("Error");
+                            }
+                        });
+                   }
+                   else {
+                       popUpProgressHide();
+                       $.ajax({
+                        type: "POST",
+                        url: "@Html.Toyota().Page.GetActionUrl("download")",
+                        async: false,
+                        data: {
+
+                        },
+                        success: function (data) {
+                            $.messagepanel.showContent(data);
+                        },
+                        error: function (data) {
+                            $.messagepanel.show("Error");
+                        }
+                    });
+                   }
+	           },
+	           failCallback: function (data) {
+                   popUpProgressHide();
+                   if (data == "ERROR") {
+                        $.ajax({
+                            type: "POST",
+                            url: "@Html.Toyota().Page.GetActionUrl("errorDownload")",
+                            async: false,
+                            data: {
+
+                            },
+                            success: function (data) {
+                                $.messagepanel.showContent(data);
+                            },
+                            error: function (data) {
+                                $.messagepanel.show("Error");
+                            }
+                        });
+                   }
+                   else {
+                       popUpProgressHide();
+                       $.ajax({
+                        type: "POST",
+                        url: "@Html.Toyota().Page.GetActionUrl("download")",
+                        async: false,
+                        data: {
+
+                        },
+                        success: function (data) {
+                            $.messagepanel.showContent(data);
+                        },
+                        error: function (data) {
+                            $.messagepanel.show("Error");
+                        }
+                    });
+                   }
+
+	           }
+
+       });
+    }
+
+        function onUploadDataFileSuccess(returnResult) {
+            if (returnResult.ExceptionErrors != null || returnResult.ExceptionErrors != undefined) {
+                showErrorMesgGrowl("<center>" + returnResult.ExceptionErrors[0] + "</center>");
+            } else {
+                
+                if (returnResult.Params[0].length == 0) {
+                    showErrorMesgGrowl("You cant upload the template with empty data");
+                } else {
+                    $("#importExcel").remove();
+                    $('#previewAlert').hide();
+                    $('#tblPreview tbody tr').remove();
+                    $('#uploadDataFilePopup').modal('hide');
+                    $('#btnEditUploaded').removeClass('saveEdit').text('Edit Upload');
+                    addDataToTableUploaded(true, returnResult);
+                }
+            }
+        }
+
+        function editSaveUpload(errMsg) {
+            $(document).on('click', '#btnEditUploaded', function () {
+                $(this).addClass('saveEdit').text('Save');
+                $('#divPreviewExcel input, #divPreviewExcel select').prop('disabled', false);
+                $('#importExcel').remove();
+            })
+
+            $(document).on('click', '.saveEdit', function () {
+                $(this).removeClass('saveEdit').text('Edit Upload');
+                $('#divPreviewExcel input, #divPreviewExcel select').prop('disabled', true);
+                var countEmpty = checkIfEmpty(errMsg);
+                if (countEmpty.length == 0) {
+                    console.log(countEmpty.length);
+                    $("#divPreviewExcel .text-right").append('<button type="button" class="btn btn-info btn-md" id="importExcel">Import </button>');
+                } else {
+                    $("#importExcel").remove();
+                }
+            });
+        }
+
+        function addDataToTableUploaded(bool, returnResult) {
+            var obj = returnResult.Params[0];
+
+            var index = 1; indexPrev = 1;
+            if (returnResult.ErrMesgs >= 1 || returnResult.ErrMesgs != null || returnResult.ErrMesgs != undefined) {
+                var params = new Object();
+                var data = new Object();
+                params.ScreenMode = gScreenMode;
+                params.data = data;
+                data.listData = [];
+                for (var i = 0; i < obj.length; i++) {
+                    addRowPreviewExcel(obj[i], returnResult.ErrMesgs);
+                    index++;
+
+
+                    var dtl = new Object();
+                    dtl.DAY_ALOC_RATIO_01 = obj[i].DAY_ALOC_RATIO_01;
+                    dtl.DAY_ALOC_RATIO_02 = obj[i].DAY_ALOC_RATIO_02;
+                    dtl.DAY_ALOC_RATIO_03 = obj[i].DAY_ALOC_RATIO_03;
+                    dtl.DAY_ALOC_RATIO_04 = obj[i].DAY_ALOC_RATIO_04;
+                    dtl.DAY_ALOC_RATIO_05 = obj[i].DAY_ALOC_RATIO_05;
+                    dtl.DAY_ALOC_RATIO_06 = obj[i].DAY_ALOC_RATIO_06;
+                    dtl.DAY_ALOC_RATIO_07 = obj[i].DAY_ALOC_RATIO_07;
+                    dtl.DAY_ALOC_RATIO_08 = obj[i].DAY_ALOC_RATIO_08;
+                    dtl.DAY_ALOC_RATIO_09 = obj[i].DAY_ALOC_RATIO_09;
+                    dtl.DAY_ALOC_RATIO_10 = obj[i].DAY_ALOC_RATIO_10;
+                    dtl.DAY_ALOC_RATIO_11 = obj[i].DAY_ALOC_RATIO_11;
+                    dtl.DAY_ALOC_RATIO_12 = obj[i].DAY_ALOC_RATIO_12;
+                    dtl.DAY_ALOC_RATIO_13 = obj[i].DAY_ALOC_RATIO_13;
+                    dtl.DAY_ALOC_RATIO_14 = obj[i].DAY_ALOC_RATIO_14;
+                    dtl.DAY_ALOC_RATIO_15 = obj[i].DAY_ALOC_RATIO_15;
+                    dtl.DAY_ALOC_RATIO_16 = obj[i].DAY_ALOC_RATIO_16;
+                    dtl.DAY_ALOC_RATIO_17 = obj[i].DAY_ALOC_RATIO_17;
+                    dtl.DAY_ALOC_RATIO_18 = obj[i].DAY_ALOC_RATIO_18;
+                    dtl.DAY_ALOC_RATIO_19 = obj[i].DAY_ALOC_RATIO_19;
+                    dtl.DAY_ALOC_RATIO_20 = obj[i].DAY_ALOC_RATIO_20;
+                    dtl.DAY_ALOC_RATIO_21 = obj[i].DAY_ALOC_RATIO_21;
+                    dtl.DAY_ALOC_RATIO_22 = obj[i].DAY_ALOC_RATIO_22;
+                    dtl.DAY_ALOC_RATIO_23 = obj[i].DAY_ALOC_RATIO_23;
+                    dtl.DAY_ALOC_RATIO_24 = obj[i].DAY_ALOC_RATIO_24;
+                    dtl.DAY_ALOC_RATIO_25 = obj[i].DAY_ALOC_RATIO_25;
+                    dtl.DAY_ALOC_RATIO_26 = obj[i].DAY_ALOC_RATIO_26;
+                    dtl.DAY_ALOC_RATIO_27 = obj[i].DAY_ALOC_RATIO_27;
+                    dtl.DAY_ALOC_RATIO_28 = obj[i].DAY_ALOC_RATIO_28;
+
+                    if (obj[i].DAY_ALOC_RATIO_29 != null) {
+                        dtl.DAY_ALOC_RATIO_29 = obj[i].DAY_ALOC_RATIO_29;
+                    }
+
+                    if (obj[i].DAY_ALOC_RATIO_30 != null) {
+                        dtl.DAY_ALOC_RATIO_30 = obj[i].DAY_ALOC_RATIO_30;
+                    }
+
+                    if (obj[i].DAY_ALOC_RATIO_31 != null) {
+                        dtl.DAY_ALOC_RATIO_31 = obj[i].DAY_ALOC_RATIO_31;
+                    }
+
+                    data.listData.push(dtl);
+
+                }
+                var countEmptyField = checkIfEmpty(returnResult.ErrMesgs);
+                showErrorMesgGrowl("Upload is succeeded with several blank fields");
+                $('#previewAlert').show();
+                $('strong#countEmpty').text(countEmptyField.length);
+                $("#previewUploadExcel").modal("show");
+                $('.modal-title').text('Preview Excel Upload');
+                $('#divPreviewExcel input, #divPreviewExcel select').prop('disabled', true);
+                $("#tblPreview").attr("style", "");
+                editSaveUpload(returnResult.ErrMesgs);
+            } else {
+                //Change it to yours
+                var params = new Object();
+                var data = new Object();
+
+
+
+
+
+                params.ScreenMode = gScreenMode;
+                params.data = data;
+                //var url = 'Url.Content("DayByDayDeliveryPackingCoeficient/AddEditSave")';
+                data.listData = [];
+                for (var i = 0; i < obj.length; i++) {
+                    var dtl = new Object();
+                    dtl.DEST_CD = obj[i].DEST_CD;
+                    dtl.PROCESS_CD = obj[i].PROCESS_CD;
+                    dtl.YYMM = obj[i].YYMM;
+                    dtl.DAY_ALOC_RATIO_01 = obj[i].DAY_ALOC_RATIO_01;
+                    dtl.DAY_ALOC_RATIO_02 = obj[i].DAY_ALOC_RATIO_02;
+                    dtl.DAY_ALOC_RATIO_03 = obj[i].DAY_ALOC_RATIO_03;
+                    dtl.DAY_ALOC_RATIO_04 = obj[i].DAY_ALOC_RATIO_04;
+                    dtl.DAY_ALOC_RATIO_05 = obj[i].DAY_ALOC_RATIO_05;
+                    dtl.DAY_ALOC_RATIO_06 = obj[i].DAY_ALOC_RATIO_06;
+                    dtl.DAY_ALOC_RATIO_07 = obj[i].DAY_ALOC_RATIO_07;
+                    dtl.DAY_ALOC_RATIO_08 = obj[i].DAY_ALOC_RATIO_08;
+                    dtl.DAY_ALOC_RATIO_09 = obj[i].DAY_ALOC_RATIO_09;
+                    dtl.DAY_ALOC_RATIO_10 = obj[i].DAY_ALOC_RATIO_10;
+                    dtl.DAY_ALOC_RATIO_11 = obj[i].DAY_ALOC_RATIO_11;
+                    dtl.DAY_ALOC_RATIO_12 = obj[i].DAY_ALOC_RATIO_12;
+                    dtl.DAY_ALOC_RATIO_13 = obj[i].DAY_ALOC_RATIO_13;
+                    dtl.DAY_ALOC_RATIO_14 = obj[i].DAY_ALOC_RATIO_14;
+                    dtl.DAY_ALOC_RATIO_15 = obj[i].DAY_ALOC_RATIO_15;
+                    dtl.DAY_ALOC_RATIO_16 = obj[i].DAY_ALOC_RATIO_16;
+                    dtl.DAY_ALOC_RATIO_17 = obj[i].DAY_ALOC_RATIO_17;
+                    dtl.DAY_ALOC_RATIO_18 = obj[i].DAY_ALOC_RATIO_18;
+                    dtl.DAY_ALOC_RATIO_19 = obj[i].DAY_ALOC_RATIO_19;
+                    dtl.DAY_ALOC_RATIO_20 = obj[i].DAY_ALOC_RATIO_20;
+                    dtl.DAY_ALOC_RATIO_21 = obj[i].DAY_ALOC_RATIO_21;
+                    dtl.DAY_ALOC_RATIO_22 = obj[i].DAY_ALOC_RATIO_22;
+                    dtl.DAY_ALOC_RATIO_23 = obj[i].DAY_ALOC_RATIO_23;
+                    dtl.DAY_ALOC_RATIO_24 = obj[i].DAY_ALOC_RATIO_24;
+                    dtl.DAY_ALOC_RATIO_25 = obj[i].DAY_ALOC_RATIO_25;
+                    dtl.DAY_ALOC_RATIO_26 = obj[i].DAY_ALOC_RATIO_26;
+                    dtl.DAY_ALOC_RATIO_27 = obj[i].DAY_ALOC_RATIO_27;
+                    dtl.DAY_ALOC_RATIO_28 = obj[i].DAY_ALOC_RATIO_28;
+
+                    if (obj[i].DAY_ALOC_RATIO_29 != null) {
+                        dtl.DAY_ALOC_RATIO_29 = obj[i].DAY_ALOC_RATIO_29;
+                    }
+
+                    if (obj[i].DAY_ALOC_RATIO_30 != null) {
+                        dtl.DAY_ALOC_RATIO_30 = obj[i].DAY_ALOC_RATIO_30;
+                    }
+
+                    if (obj[i].DAY_ALOC_RATIO_31 != null) {
+                        dtl.DAY_ALOC_RATIO_31 = obj[i].DAY_ALOC_RATIO_31;
+                    }
+
+
+                    data.listData.push(dtl);
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Content("DayByDayDeliveryPackingCoeficient/AddEditSave")',
+                    contentType: 'application/json',
+                    dataType: "json",
+                    traditional: true,
+                    data: JSON.stringify(params),
+                    beforeSend: function () {
+                        popUpProgressShow();
+                        console.log(params);
+                    },
+                    success: function (data) {
+                        if (data.Result == "ERROR") {
+                            showErrorMesgGrowl(data.ErrMesgs);
+                            doSearch(1);
+                        }
+                        else {
+                            showSuccessMesgGrowl("Save Success");
+                            onSaveSuccess();
+                        }
+                        popUpProgressHide();
+                    },
+                    error: function (data) {
+                        popUpProgressHide();
+                        showErrorMesgGrowl(data.ErrMesgs);
+                    },
+                    complete: function () {
+                        popUpProgressHide();
+                    }
+                });
+                //Change it to yours
+            }
+    }
+
+        function onSaveSuccess() {
+
+            doSearch(1);
+            $(".initialBtn").prop("disabled", false);
+        }
+
+        function addRowPreviewExcel(object, errMsg) {
+            $('#tblPreview tbody').append(
+                '<tr class="' + indexPrev + '">\
+            <td>'+ indexPrev + '</td>\
+            <td>\
+                <input type="text" class="form-control input-sm" id="DEST_CD_' + indexPrev + '"\
+                    value="' + (object.DEST_CD == null ? "" : object.DEST_CD) + '">\
+            </td>\
+            <td>\
+                <input type="text" class="form-control input-sm" id="PROCESS_CD_' + indexPrev + '"\
+                    value="' + (object.PROCESS_CD == null ? "" : object.PROCESS_CD) + '">\
+            </td>\
+            <td>\
+                <input type="text" class="form-control input-sm" id="YYMM_' + indexPrev + '"\
+                    value="' + (object.YYMM == null ? "" : object.YYMM) + '">\
+            </td>\
+        </tr>'+
+                '<input type="hidden" id="DAY_ALOC_RATIO_01_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_01 == null ? "" : object.DAY_ALOC_RATIO_01) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_02_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_02 == null ? "" : object.DAY_ALOC_RATIO_02) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_03_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_03 == null ? "" : object.DAY_ALOC_RATIO_03) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_04_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_04 == null ? "" : object.DAY_ALOC_RATIO_04) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_05_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_05 == null ? "" : object.DAY_ALOC_RATIO_05) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_06_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_06 == null ? "" : object.DAY_ALOC_RATIO_06) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_07_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_07 == null ? "" : object.DAY_ALOC_RATIO_07) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_08_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_08 == null ? "" : object.DAY_ALOC_RATIO_08) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_09_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_09 == null ? "" : object.DAY_ALOC_RATIO_09) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_10_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_10 == null ? "" : object.DAY_ALOC_RATIO_10) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_11_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_11 == null ? "" : object.DAY_ALOC_RATIO_11) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_12_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_12 == null ? "" : object.DAY_ALOC_RATIO_12) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_13_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_13 == null ? "" : object.DAY_ALOC_RATIO_13) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_14_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_14 == null ? "" : object.DAY_ALOC_RATIO_14) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_15_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_15 == null ? "" : object.DAY_ALOC_RATIO_15) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_16_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_16 == null ? "" : object.DAY_ALOC_RATIO_16) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_17_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_17 == null ? "" : object.DAY_ALOC_RATIO_17) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_18_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_18 == null ? "" : object.DAY_ALOC_RATIO_18) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_19_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_19 == null ? "" : object.DAY_ALOC_RATIO_19) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_20_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_20 == null ? "" : object.DAY_ALOC_RATIO_20) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_21_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_21 == null ? "" : object.DAY_ALOC_RATIO_21) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_22_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_22 == null ? "" : object.DAY_ALOC_RATIO_22) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_23_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_23 == null ? "" : object.DAY_ALOC_RATIO_23) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_24_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_24 == null ? "" : object.DAY_ALOC_RATIO_24) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_25_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_25 == null ? "" : object.DAY_ALOC_RATIO_25) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_26_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_26 == null ? "" : object.DAY_ALOC_RATIO_26) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_27_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_27 == null ? "" : object.DAY_ALOC_RATIO_27) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_28_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_28 == null ? "" : object.DAY_ALOC_RATIO_28) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_29_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_29 == null ? "" : object.DAY_ALOC_RATIO_29) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_30_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_30 == null ? "" : object.DAY_ALOC_RATIO_30) + '" > ' +
+                '<input type="hidden" id="DAY_ALOC_RATIO_31_' + indexPrev + '" value = "' +
+                (object.DAY_ALOC_RATIO_31 == null ? "" : object.DAY_ALOC_RATIO_31) + '" > ' 
+
+            );
+            //datePicker();
+
+            //DAY_ALOC_RATIO_01
+            clearOnPreviewEvent(indexPrev, errMsg);
+            indexPrev++;
+        }
+
+        function clearOnPreviewEvent(i, errMsg) {
+            $(document).on("change",
+                "#DEST_CD_" + i
+                + ",#PROCESS_CD_" + i
+                + ",#YYMM_" + i
+
+                , function () {
+                    clearOnEvent(this, errMsg);
+                });
+        }
+
+        function clearOnEvent(element, errMsg) {
+            var id = $(element).attr('id');
+            var lastChar = "";
+            $(element).removeClass("emptyField mandatory");
+            if ($(element).parent().hasClass("customTooltip")) {
+                $(element).unwrap();
+            }
+            var countEmptyPreview = checkIfEmpty(errMsg);
+            $('strong#countEmpty').text(countEmptyPreview.length);
+            if (countEmptyPreview.length == 0) {
+                $("#previewAlert").hide();
+            } else {
+                $("#previewAlert").show();
+            }
+        }
+
+        function checkIfEmpty(errMsg) {
+            var countEmptyField = [];
+
+            var i = 0;
+
+            $(".customToolTipText").remove();
+            $("#divPreviewExcel input.form-control, #divPreviewExcel select").each(function () {
+                if ($(this).val() == "" || $(this).val() == null) {
+
+                    if (i < 3) {
+                        if ($(this).parent().hasClass("customTooltip")) {
+                            $(this).unwrap();
+                        }
+                        $(this).wrapAll("<div class='customTooltip'></div>")
+                        $(this).addClass("mandatory");
+                        $(this).after("<span class='customToolTipText'><small class='errorMsg'>Cell is empty</small><i></i></span>");
+                        $(this).closest('tr').attr('id', 'hasEmptyCells');
+                        countEmptyField.push(1);
+                    }
+
+                    i++;
+                }
+            });
+            if (errMsg != null) {
+                for (var j = 0; j < errMsg.length; j++) {
+                    var str1 = errMsg[j].slice(0, errMsg[j].indexOf(" ")) + "_";
+                    var str2 = errMsg[j].replace(/[^0-9]/gi, '');
+                    var id = str1.concat(str2);
+                    if ($("#" + id).parent().hasClass("customTooltip")) {
+                        $("#" + id).next(".customToolTipText").find('.errorMsg').addClass(id);
+                        $(".errorMsg." + id).text(errMsg[j]);
+                    }
+                }
+            }
+            $('#tblPreview tbody tr').each(function () {
+                if ($(this).attr('id') != 'hasEmptyCells') {
+                    $(this).hide();
+                }
+            });
+            return countEmptyField;
+        }
+
+    </script>
+
+}

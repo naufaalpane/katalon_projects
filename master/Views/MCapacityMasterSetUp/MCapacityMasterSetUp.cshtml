@@ -1,0 +1,1028 @@
+﻿@using System;
+@using Toyota.Common.Web.Platform;
+@using GPPSU.Commons.Constants;
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Partial("_SearchCriteria")
+
+@section HeadScript{
+
+}
+
+<div id="divGrid">
+    @Html.Partial("_GridView")
+</div>
+
+<div id="divPreviewExcel">
+    @Html.Partial("_ModalPreviewExcelUpload")
+</div>
+
+
+<div id="uploadDataFilePopup" class="modal fade" role="dialog" aria-hidden="true" aria-labelledby="basicModal">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="popup-title">Upload Area</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- Dropzone AREA-->
+                        <div id="actions" class="row">
+                            <div class="col-md-12 fileinput-button mb-2">
+                                <div class="row justify-content-center" style="padding: 5px;">
+                                    <i class="fa fa-cloud-upload-alt fa-5x" style="opacity: 0.3"></i>
+                                </div>
+                                <div class="row justify-content-center" style="padding: 5px;">
+                                    <span style="color: #999; font-size: 20px;"><i class="fa fa-caret-right blue" style="opacity: 0.7"></i> Drop file to upload <small>(or click)</small> </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="table table-striped" id="previews">
+                                <div id="template" class="file-row">
+                                    <div>
+                                        <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width:0%;" data-dz-uploadprogress><span class="progress-text"></span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Dropzone AREA-->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <div class="text-left">
+
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <div class="text-right">
+                        <button type="button" class="btn btn-info" id="linkDownloadTemplate">Download Template </button>
+                        <button type="button" id="btnUploadPopupClose" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section BodyScript{
+
+    <script type="text/javascript" src="@Url.Content("~/Content/Bootstrap/js/date-time/bootstrap-datepicker.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/js/common.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/tdk/jquery.bootstrap-growl.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/js/jquery.blockUI.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/js/jquery-msgbox/jquery.msgBox.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/tdk/jquery.filedownload.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/tdk/jquery.bootstrap-growl.min.js")"></script>
+
+    <script type="text/javascript" src="@Url.Content("~/Content/Bootstrap/js/date-time/bootstrap-datepicker.js")"></script>
+
+    <script>
+    var trBaseColor;
+    var dataEditCopy = [];
+    var gScreenMode = "";
+
+
+    var initialButtoneq9 = `
+            2010/11/25
+        `;
+
+    //var modifiedProccesCd = `
+    //     <input type="text" id="sc_procces_cd" name="sc_procces_cd" style="width:100px"/>
+    // `;
+
+    //var modifiedLineCd = `
+    //     <input type="text" id="sc_line_cd" name="sc_line_cd" style="width:100px"/>
+    // `;
+
+    //var modifiedHeijunkaCd = `
+    //     <input type="text" id="sc_heijunka_cd" name="sc_heijunka_cd" style="width:100px"/>
+    // `;
+
+    //var modifiedCapacity = `
+    //     <input type="text" id="sc_capacity" name="sc_capacity" style="width:100px"/>
+    // `;
+
+    //var modifiedDatePickerFrom = `
+    //        <div class="input-group">
+    //            <input class="form-control _datepicker" id="sc_REQ_DT" name="sc_REQ_DT" type="text" data-date-format="dd.mm.yyyy" value="" />
+    //            <div class="input-group-append">
+    //                <span class="input-group-text">
+    //                    <i class="far fa-calendar-alt"></i>
+    //                </span>
+    //            </div>
+    //        </div>
+    //    `;
+    //var modifiedDatePickerTo = `
+    //        <div class="input-group">
+    //            <input class="form-control _datepicker" id="sc_REQ_DT2" name="sc_REQ_DT2" type="text" data-date-format="dd.mm.yyyy" value="" />
+    //            <div class="input-group-append">
+    //                <span class="input-group-text">
+    //                    <i class="far fa-calendar-alt"></i>
+    //                </span>
+    //            </div>
+    //        </div>
+    //    `;
+
+    //var modifiedCreatedBy = `
+    //        <input type="text" id="sc_created_by" name="sc_created_by" style="width:100px"/>
+    //    `;
+
+    //var modifiedCreatedDt = `
+    //        <div class="input-group">
+    //            <input class="form-control _datepicker" id="sc_created_dt" name="sc_created_dt" type="text" data-date-format="dd.mm.yyyy"/>
+    //            <div class="input-group-append">
+    //                <span class="input-group-text">
+    //                    <i class="far fa-calendar-alt"></i>
+    //                </span>
+    //            </div>
+    //        </div>
+    //    `;
+
+
+
+    $(document).ready(function () {
+
+         //[START UPLOAD]
+        $(document).on("click", "#btnUpload", function () {
+            gScreenMode = "Upload";
+             $("#uploadDataFilePopup").modal();
+         });
+
+        $(document).on("click", "#linkDownloadTemplate", function () {
+            popUpProgressShow();
+            $.fileDownload('@Url.Content("~/McapacityMasterSetUp/DownloadTemplate")', {
+                httpMethod: "POST",
+                data: {},
+                successCallback: function (url) {
+                    popUpProgressHide();
+                },
+                failCallback: function (responseHtml, url) {
+                    popUpProgressHide();
+                    var returnResult = JSON.parse(responseHtml.replace("<pre>", "").replace("</pre>", ""));
+                    handleAjaxResultGrowl(returnResult, "Download Template");
+                }
+            });
+        });
+
+        var previewNode = document.querySelector("#template");
+        previewNode.id = "";
+        var previewTemplate = previewNode.parentNode.innerHTML;
+        previewNode.parentNode.removeChild(previewNode);
+
+        var myDropzone = new Dropzone("#actions", {
+            url: "@Html.Toyota().Page.GetActionUrl("UploadDataFile")",
+            paramName: "file",
+            maxFiles: 1,
+            acceptedFiles: ".xls",
+            addRemoveLinks: false,
+            previewTemplate: previewTemplate,
+            autoQueue: true,
+            clickable: ".fileinput-button",
+            uploadprogress: function (file, progress, bytesSent) {
+                if (file.previewElement) {
+                    var progressElement = file.previewElement.querySelector("[data-dz-uploadprogress]");
+                    progressElement.style.width = progress + "%";
+                    progressElement.querySelector(".progress-text").textContent = Math.round(progress) + "%";
+                }
+            },
+            success: function (file, returnResult) {
+                onUploadDataFileSuccess(returnResult);
+            },
+            complete: function () {
+
+            },
+            error: function (file, errormessage) {
+                if (file.previewElement) {
+                    showErrorMesgGrowl(errormessage);
+                }
+            },
+        });
+
+        myDropzone.on("complete", function (file) {
+            myDropzone.removeFile(file);
+        });
+
+        $(document).one('ajaxloadstart.page', function (e) {
+            try {
+                myDropzone.destroy();
+            } catch (e) { }
+        });
+
+        function onUploadDataFileSuccess(returnResult) {
+            if (returnResult.ExceptionErrors != null || returnResult.ExceptionErrors != undefined) {
+                showErrorMesgGrowl("<center>" + returnResult.ExceptionErrors[0] + "</center>");
+            } else {
+                if (returnResult.Params[0].length == 0) {
+                    showErrorMesgGrowl("You cant upload the template with empty data");
+                } else {
+                    $("#importExcel").remove();
+                    $('#previewAlert').hide();
+                    $('#tblPreview tbody tr').remove();
+                    $('#uploadDataFilePopup').modal('hide');
+                    $('#btnEditUploaded').removeClass('saveEdit').text('Edit Upload');
+                    addDataToTableUploaded(true, returnResult);
+                }
+            }
+        }
+
+        function addDataToTableUploaded(bool, returnResult) {
+            var obj = returnResult.Params[0];
+            var index = 1; indexPrev = 1;
+            if (returnResult.ErrMesgs >= 1 || returnResult.ErrMesgs != null || returnResult.ErrMesgs != undefined) {
+                for (var i = 0; i < obj.length; i++) {
+                    addRowPreviewExcel(obj[i], returnResult.ErrMesgs);
+                    index++
+                }
+                var countEmptyField = checkIfEmpty(returnResult.ErrMesgs);
+                showErrorMesgGrowl("Upload is succeeded with several blank fields");
+                $('#previewAlert').show();
+                $('strong#countEmpty').text(countEmptyField.length);
+                $("#previewUploadExcel").modal("show");
+                $('.modal-title').text('Preview Excel Upload');
+                $('#divPreviewExcel input, #divPreviewExcel select').prop('disabled', true);
+                editSaveUpload(returnResult.ErrMesgs);
+            }
+            else
+            {
+                var params = new Object();
+                var data = new Object();
+                params.screenMode = 'Upload';
+                params.data = data;
+
+
+                var url = "@Html.Toyota().Page.GetActionUrl("AddEditSave")";
+                data.listData = []
+                for (var i = 0; i < obj.length; i++) {
+                    var dtl = new Object();
+                    dtl.PROCESS_CD = obj[i].PROCESS_CD;
+                    dtl.LINE_CD = obj[i].LINE_CD;
+                    dtl.HEIJUNKA_CD = obj[i].HEIJUNKA_CD;
+                    dtl.CAPACITY = obj[i].CAPACITY;
+                    dtl.TC_FROM = obj[i].TC_FROM;
+                    dtl.TC_TO = obj[i].TC_TO;
+
+                    data.listData.push(dtl);
+                }
+
+                $.ajax({
+                     type: "POST",
+                     url: url,
+                     contentType: 'application/json',
+                     dataType: 'json',
+                     traditional: true,
+                    data: JSON.stringify(params),
+                    success: function (data) {
+                        if (data.ErrMesgs != null) {
+                            for (var i = 0; i < data.ErrMesgs.length; i++) {
+                                if (data.ErrMesgs[i] != null) {
+                                    showErrorMesgGrowl(data.ErrMesgs[i]);
+                                }
+                            }
+                            doSearch(1);
+                        } else {
+                            showSuccessMesgGrowl("Save Success");
+                            onSaveSuccess();
+                        }
+                        $("#previewUploadExcel").modal("hide");
+                        popUpProgressHide();
+
+                    },
+                    error: function (data) {
+                        popUpProgressHide();
+                        changeTextButton(method);
+                        handleAjaxResponseError(data, "Save Capacity");
+                    }
+                });
+            }
+        }
+
+    function editSaveUpload(errMsg) {
+        $(document).on('click', '#btnEditUploaded', function () {
+            $(this).addClass('saveEdit').text('Save');
+            $('#divPreviewExcel input, #divPreviewExcel select').prop('disabled', false);
+            $('#importExcel').remove();
+        })
+
+        $(document).on('click', '.saveEdit', function () {
+            $(this).removeClass('saveEdit').text('Edit Upload');
+            $('#divPreviewExcel input, #divPreviewExcel select').prop('disabled', true);
+            var countEmpty = checkIfEmpty(errMsg);
+            if (countEmpty.length == 0) {
+                console.log(countEmpty.length);
+                $("#divPreviewExcel .text-right").append('<button type="button" class="btn btn-info btn-md" id="importExcel">Import </button>');
+            } else {
+                $("#importExcel").remove();
+            }
+        });
+        }
+
+    function addRowPreviewExcel(object, errMsg) {
+        $('#tblPreview tbody').append(
+           '<tr class="' + indexPrev + '">\
+                <td>'+ indexPrev +'</td>\
+                <td>\
+                    <input type="text" class="form-control input-sm" id="PROCESS_CODE_' + indexPrev + '"\
+                        value="' + (object.PROCESS_CD == null ? "" : object.PROCESS_CD) + '">\
+                </td>\
+                <td>\
+                    <input type="text" class="form-control input-sm" id="LINE_CODE_' + indexPrev + '"\
+                        value="' + (object.LINE_CD == null ? "" : object.LINE_CD) + '">\
+                </td>\
+                <td>\
+                    <input type="text" class="form-control input-sm" id="HEIJUNKA_CODE_' + indexPrev + '"\
+                        value="' + (object.HEIJUNKA_CD == null ? "" : object.HEIJUNKA_CD) + '">\
+                </td>\
+                <td>\
+                    <input type="text" class="form-control input-sm" id="CAPACITY_' + indexPrev + '"\
+                        value="' + (object.CAPACITY == null ? "" : object.CAPACITY) + '">\
+                </td>\
+                <td>\
+                   <input type="text" class="form-control input-sm _datepicker" id="TC_FROM_' + indexPrev + '"\
+                    value="' + (object.TC_FROM == null ? "" : object.TC_FROM) + '">\
+                </td>\
+                <td>\
+                   <input type="text" class="form-control input-sm _datepicker" id="TC_TO_' + indexPrev + '"\
+                    value="' + (object.TC_TO == null ? "" : object.TC_TO) + '">\
+                </td>\
+            </tr>'
+        );
+        datePicker();
+        clearOnPreviewEvent(indexPrev, errMsg);
+        indexPrev++;
+    }
+
+
+    function clearOnPreviewEvent(i, errMsg) {
+        $(document).on("change",
+              "#PROCESS_CODE_" + i
+           + ",#LINE_CODE_" + i
+           + ",#HEIJUNKA_CODE_" + i
+           + ",#CAPACITY_" + i
+           + ",#TC_FROM_" + i
+           + ",#TC_TO_" + i, function () {
+               clearOnEvent(this, errMsg);
+        });
+    }
+
+    function clearOnEvent(element, errMsg) {
+        var id = $(element).attr('id');
+        var lastChar = "";
+            $(element).removeClass("emptyField mandatory");
+            if ($(element).parent().hasClass("customTooltip")) {
+                $(element).unwrap();
+            }
+        var countEmptyPreview = checkIfEmpty(errMsg);
+        $('strong#countEmpty').text(countEmptyPreview.length);
+        if (countEmptyPreview.length == 0) {
+            $("#previewAlert").hide();
+        } else {
+            $("#previewAlert").show();
+        }
+    }
+
+    function checkIfEmpty(errMsg) {
+        var countEmptyField = [];
+        $(".customToolTipText").remove();
+        $("#divPreviewExcel input.form-control, #divPreviewExcel select").each(function () {
+            if ($(this).val() == "" || $(this).val() == null) {
+                    if ($(this).parent().hasClass("customTooltip")) {
+                        $(this).unwrap();
+                    }
+                    $(this).wrapAll("<div class='customTooltip'></div>")
+                    $(this).addClass("mandatory");
+                    $(this).after("<span class='customToolTipText'><small class='errorMsg'>Cell is empty</small><i></i></span>");
+                    $(this).closest('tr').attr('id','hasEmptyCells');
+                    countEmptyField.push(1);
+            }
+        });
+        if (errMsg != null) {
+            for (var j = 0; j < errMsg.length; j++) {
+                var str1 = errMsg[j].slice(0, errMsg[j].indexOf(" ")) + "_";
+                var str2 = errMsg[j].slice(errMsg[j].indexOf("Row") + 4, errMsg[j].indexOf("Row") + 6);
+                var id = str1.concat(str2);
+                if ($("#" + id).parent().hasClass("customTooltip")) {
+                    $("#" + id).next(".customToolTipText").find('.errorMsg').addClass(id);
+                    $(".errorMsg." + id).text(errMsg[j]);
+                }
+            }
+        }
+        $('#tblPreview tbody tr').each(function () {
+            if ($(this).attr('id') != 'hasEmptyCells') {
+                //$(this).hide();
+            }
+        });
+        return countEmptyField;
+    }
+
+
+        $(document).on('click', '#importExcel', function () {
+
+            var params = new Object();
+            var data = new Object();
+            params.screenMode = 'Upload';
+            params.data = data;
+            var i = 1;
+            data.listData = []
+
+            $('#tblPreview tbody tr').each(function () {
+                var dtl = new Object();
+                dtl.PROCESS_CD = $(this).find('input#PROCESS_CODE_' + i).val();
+                dtl.LINE_CD = $(this).find('input#LINE_CODE_' + i).val();
+                dtl.HEIJUNKA_CD = $(this).find('input#HEIJUNKA_CODE_' + i).val();
+                dtl.CAPACITY = $(this).find('input#CAPACITY_' + i).val();
+                dtl.TC_FROM = $(this).find('input#TC_FROM_' + i).val();
+                dtl.TC_TO = $(this).find('input#TC_TO_' + i).val();
+                data.listData.push(dtl);
+                i++;
+            });
+            params.data = data;
+
+            $.ajax({
+                type: "POST",
+                url: "@Html.Toyota().Page.GetActionUrl("AddEditSave")",
+                contentType: 'application/json',
+                dataType: 'json',
+                traditional: true,
+                data: JSON.stringify(params),
+                success: function (data) {
+                    if (data.ErrMesgs != null) {
+                        for (var i = 0; i < data.ErrMesgs.length; i++) {
+                            if (data.ErrMesgs[i] != null) {
+                                showErrorMesgGrowl(data.ErrMesgs[i]);
+                            }
+                        }
+                        doSearch(1);
+                    } else {
+                        showSuccessMesgGrowl("Save Success");
+                        onSaveSuccess();
+                    }
+                    $("#previewUploadExcel").modal("hide");
+                    popUpProgressHide();
+
+                },
+                error: function (data) {
+                    popUpProgressHide();
+                    showErrorMesgGrowl(data.ErrMesgs);
+                }
+            });
+     });
+
+
+    //END UPLOAD
+
+       $(document).on("click", "#insertLine", function () {
+            gScreenMode = '@CommonConstant.SCREEN_MODE_ADD';
+            clearAddEdit(gScreenMode);
+
+            addTheFirstRow(this);
+            $("._datepicker").datepicker({
+                format: 'yyyymmdd',
+                autoclose: true,
+                minViewMode: 'date'
+            });
+            $("#txt8").prop('disabled', true);
+            $("#txt9").prop('disabled', true);
+            dataEditCopy.length = 0;
+        });
+
+        $(document).on("click", "#cancelSubmit", function () {
+            var tr = $(this).closest("tr");
+            $("#tblDetail tbody tr").css("opacity", "1");
+            $(".initialBtn").prop("disabled", false);
+            if (tr.attr("class") == "editLine") {
+                tr.each(function (i, e) {
+                    $(e).removeClass($(e).attr("class"));
+                    $(e).css("background-color", trBaseColor);
+                    var i = $(e).children('td');
+                    for (var x = 2; x <= i.length; x++) {
+                        var val = i.eq(x).children().val();
+                        i.eq(x).html(val);
+                    }
+                    i.eq(1).html(initialButton);
+                    i.eq(6).html(initialButtoneq9);
+                    i.eq(7).html(initialButtoneq9);
+                    i.eq(9).html(initialButtoneq9);
+                });
+            } else {
+                $(this).closest("tr").remove();
+            }
+        });
+
+        $(document).on("click", "#editLine", function () {
+            gScreenMode = '@CommonConstant.SCREEN_MODE_EDIT';
+            gSeqNo = $("#editLine").attr('data-SeqNo');
+            dataEditCopy.length = 0;
+            var tr = initializeEditCopyLine(this);
+            tr.addClass($(this).attr("id"));
+            loopThrougTableRow(tr, $(this).attr('id'));
+
+            $("#txt2").prop('disabled', true);
+            $("#txt3").prop('disabled', true);
+            $("#txt4").prop('disabled', true);
+            $("#txt8").prop('disabled', true);
+            $("#txt9").prop('disabled', true);
+
+            trBaseColor = getComputedStyle(document.querySelector("." + $(this).attr('id') + "")).backgroundColor;
+            tr.css("background-color", "#E9E9E9");
+        });
+
+        $(document).on("click", "#copyLine", function () {
+            gScreenMode = '@CommonConstant.SCREEN_MODE_ADD';
+            dataEditCopy.length = 0;
+            addTheFirstRow(this);
+            $("#txt8").prop('disabled', true);
+            $("#txt9").prop('disabled', true);
+
+        });
+
+
+    })
+
+    function datePicker() {
+        $( "._datepicker" ).datepicker({
+            format: 'yyyymmdd',
+            autoclose: true,
+            minViewMode: 'date',
+            orientation: 'auto bottom'
+        }).on('show', function () {
+            $(".datepicker-orient-bottom").removeClass("datepicker-orient-bottom");
+            $(".datepicker-dropdown").addClass("datepicker-orient-top");
+        });
+    }
+    function addTheFirstRow(e) {
+        btnAddRow_onClick(e);
+        $(".initialBtn").prop("disabled", true);
+        $("input[type=checkbox]").prop("checked", false);
+    }
+
+    function btnAddRow_onClick(classAttr) {
+        var $class = $(classAttr).attr('id');
+        var tr = $class == 'insertLine' ? $("#tblDetail tbody tr:first") : $(classAttr).closest("tr");
+        $(".tableScroll").scrollTop(0);
+        tr.clone().addClass($class).css("background-color", "#E9E9E9").prependTo("#tblDetail tbody");
+
+        loopThrougTableRow($("#tblDetail tbody tr." + $class + ""), $class);
+    }
+
+    function initializeEditCopyLine(e) {
+        var tr = $(e).closest("tr");
+        $("input[type=checkbox]").prop("checked", false);
+        $(".initialBtn").prop("disabled", true);
+
+        return tr;
+    }
+
+    function loopThrougTableRow(tr, classAttr) {
+        tr.each(function (i, e) {
+            var i = $(e).children('td');
+            for (var x = 2; x < i.length; x++) {
+                var val = classAttr == "insertLine" ? "" : i.eq(x).text();
+                i.eq(x).html("<input type ='text' class='form-control " + x + " text-center' value='" + val + "' id='txt" + x + "'/>");
+                dataEditCopy.push(val);
+                if (x == 6) {
+                    i.eq(6).html(tdTcFrom(val));
+                }
+                if (x == 7) {
+                    i.eq(7).html(tdTcTo(val));
+                }
+
+            }
+            i.eq(1).html(modifiedButton);
+
+        });
+
+        $( "._datepicker" ).datepicker({
+                format: 'yyyymmdd',
+                autoclose: true,
+                minViewMode: 'date',
+                orientation: 'auto bottom'
+            }).on('show', function () {
+                $(".datepicker-orient-bottom").removeClass("datepicker-orient-bottom");
+                $(".datepicker-dropdown").addClass("datepicker-orient-top");
+            });
+
+        $("#sc_created_by").prop('disabled', true);
+        $("#sc_created_dt").prop('disabled', true);
+        $("#tblDetail tbody tr:not(." + tr.attr("class") + ")").css("opacity", "0.3");
+    }
+
+        function tdTcFrom(val) {
+            var string = `
+             <div class="input-group">
+                 <input class="form-control _datepicker" id="sc_TC_From" name="sc_TC_From" type="text" value="`+ val +`"/>
+                 <div class="input-group-append">
+                     <span class="input-group-text">
+                         <i class="far fa-calendar-alt"></i>
+                     </span>
+                 </div>
+             </div>
+            `;
+            return string
+        }
+
+        function tdTcTo(val) {
+            var string = `
+            <div class="input-group">
+                <input class="form-control _datepicker" id="sc_TC_To" name="sc_TC_To" type="text" value="`+ val +`"/>
+                <div class="input-group-append">
+                    <span class="input-group-text">
+                        <i class="far fa-calendar-alt"></i>
+                    </span>
+                </div>
+            </div>
+            `;
+            return string
+        }
+
+
+    function onDownload() {
+        popUpProgressShow();
+        $.fileDownload('@Url.Content("MCapacityMasterSetUp/DownloadFileExcel")', {
+	            httpMethod: "POST",
+	            data: {
+                    PROCESS_CD: $("#proccd").val(),
+                    LINE_CD: $("#linecd").val(),
+                    HEIJUNKA_CD: $("#hjkcd").val(),
+	                RowsPerPage: $("#cbodisplay").val(),
+	                CurrentPage: $(".pagination li.page-item.active a").text()
+
+	            },
+                successCallback: function (data) {
+                    if (data == "ERROR") {
+                        showErrorMesgGrowl(data);
+                    }
+                    else {
+                        popUpProgressHide();
+                        $('#confirmationDownload').css('display', 'none');
+                        showSuccessMesgGrowl("Download Success");
+                    }
+	            },
+	            failCallback: function (data) {
+                    popUpProgressHide();
+                    if (data == "ERROR") {
+                        showErrorMesgGrowl("ERROR : Data not found");
+                    }
+                    else {
+                        popUpProgressHide();
+                        $('#confirmationDownload').css('display', 'none');
+                        showSuccessMesgGrowl("Download Success");
+                    }
+                    $('#confirmationDownload').css('display', 'none');
+	            }
+
+        });
+    }
+
+    // [START SEARCH]
+        function validationSearch() {
+            var flagErr = 0;
+
+            var lineCd = $('#linecd').val();
+            if (lineCd == null || lineCd == '') {
+                showErrorMesgGrowl('Line Code should not be empty');
+                return flagErr = 1;
+            }
+            return flagErr
+        }
+
+        function doSearch(page) {
+            //errVal = validationSearch();
+
+
+            //if (errVal == 0) {
+                //var params = new Object();
+                //var data = new Object();
+
+                //params.screenMode = gScreenMode;
+                //params.data = data;
+
+                //var lineCd = $('#linecd').val();
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Html.Toyota().Page.GetActionUrl("Search")",
+                    data: {
+                        PROCESS_CD: $("#proccd").val(),
+                        LINE_CD: $("#linecd").val(),
+                        HEIJUNKA_CD: $("#hjkcd").val(),
+                        rowsPerPage: $("#cbodisplay").val(),
+                        currentPage: page
+                    },
+                    success: function (data) {
+                        $("#divGrid").html(data);
+                        popUpProgressHide();
+                    },
+                    error: function (data) {
+                        popUpProgressHide();
+                    }
+                });
+            //}
+        }
+
+        function doClear() {
+            $("#proccd").val('');
+            $("#linecd").val('');
+            $("#hjkcd").val('');
+
+            doSearch(1);
+        }
+
+        // [END SEARCH]
+
+        // [START ADD]
+        function clearAddEdit(screenAddEditFlag) {
+             if (screenAddEditFlag == '@CommonConstant.SCREEN_MODE_ADD') {
+                 $("#proccd").prop("disabled", true);
+                 $("#linecd").prop("disabled", true);
+                 $("#hjkcd").prop("disabled", true);
+             }
+         }
+
+        $(document).on("click", "#btnSave", function () {
+            var errValidation = validation();
+
+            if (errValidation != 1) {
+                var params = new Object();
+                var data = new Object();
+
+                params.screenMode = gScreenMode;
+                params.data = data;
+
+                if (gScreenMode == "EDIT") {
+                    data.SEQ_NO = gSeqNo;
+                    data.PROCESS_CD = $("#txt2").val();
+                    data.LINE_CD = $("#txt3").val();
+                    data.HEIJUNKA_CD = $("#txt4").val();
+                    data.CAPACITY = $("#txt5").val();
+                    data.TC_FROM = $("#sc_TC_From").val();
+                    data.TC_TO = $("#sc_TC_To").val();
+                }
+
+                data.PROCESS_CD = $("#txt2").val();
+                data.LINE_CD = $("#txt3").val();
+                data.HEIJUNKA_CD = $("#txt4").val();
+                data.CAPACITY = $("#txt5").val();
+                data.TC_FROM = $("#sc_TC_From").val();
+                data.TC_TO = $("#sc_TC_To").val();
+
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Html.Toyota().Page.GetActionUrl("AddEditSave")",
+	                contentType: 'application/json',
+	                dataType: 'json',
+                    traditional: true,
+                    data: JSON.stringify(params),
+                    success: function (returnResult) {
+                        console.log(returnResult);
+                        popUpProgressHide();
+                        if (returnResult.Result == 'SUCCESS') {
+                            handleAjaxResultGrowl(returnResult, "Save Capacity Master", onSaveSuccess);
+                        }
+                        else {
+                            showErrorMesgGrowl(returnResult.ErrMesgs[0]);
+                        }
+                    },
+                    error: function (returnResult) {
+                        console.log(returnResult);
+                        popUpProgressHide();
+                        handleAjaxResultGrowl(returnResult, "Save Capacity Master");
+                    }
+                })
+            }
+        });
+
+        function onSaveSuccess() {
+            $("#tblDetail tbody tr").css("opacity", "1");
+            $(".initialBtn").prop("disabled", false);
+            $(".form-control").prop("disabled", false);
+            $(this).closest("tr").remove();
+
+            doSearch(1);
+        }
+
+
+        function validation() {
+            var flagErr = 0
+            var PROCESS_CD = $("#txt2").val();
+            var LINE_CD = $("#txt3").val();
+            var CAPACITY = $("#txt5").val();
+            var TC_FROM = $("#sc_TC_From").val();
+            var TC_TO = $("#sc_TC_To").val();
+
+            if (PROCESS_CD == null || PROCESS_CD == '') {
+                showErrorMesgGrowl("Proccess Code should not be empty");
+                return flagErr = 1;
+            }
+            if (LINE_CD == null || LINE_CD == '') {
+                showErrorMesgGrowl("Line Code should not be empty");
+                return flagErr = 1;
+            }
+            if (CAPACITY == null || CAPACITY == '') {
+                showErrorMesgGrowl("Capacity should not be empty");
+                return flagErr = 1;
+            }
+            if (TC_FROM == null || TC_FROM == '') {
+                showErrorMesgGrowl("TC From should not be empty");
+                return flagErr = 1;
+            }
+
+            if (TC_FROM >= TC_TO) {
+                showErrorMesgGrowl("TC To cannot be greater than TC From");
+                return flagErr = 1;
+            }
+
+            if (PROCESS_CD != 'K' && PROCESS_CD != 'M') {
+                showErrorMesgGrowl("Proccess Code must K or M");
+                return flagErr = 1;
+            }
+
+            return flagErr
+        }
+
+        $(document).on("click", "#cancelSubmit", function () {
+            $("#proccd").prop("disabled", false);
+            $("#linecd").prop("disabled", false);
+            $("#hjkcd").prop("disabled", false);
+        });
+
+        // [END ADD]
+
+        // [START DELETE]
+        $(document).on("click", "#btnDelDtl", function () {
+            var isHaveChecked = false;
+            gChecked = 0;
+
+            $("input[name='chkRow']").each(function () {
+                if ($(this).prop('checked')) {
+                    isHaveChecked = true;
+                }
+            });
+
+            if (!isHaveChecked || gChecked > 1) {
+                showErrorMesgGrowl("Select One or More Record to be Deleted");
+                return;
+            }
+
+            //var checked = $(".grid-checkbox-body").length;
+
+            //if (checked < 1) {
+            //    showErrorMesgGrowl("Choose one or more data(s) to be delete!");
+            //}
+            else {
+                $.messagebox.show(
+                "Delete Data",
+                "MCSTSTD014C: Are you sure you want to delete the record ?",
+                "INF",
+                "CONFIRM",
+                "onConfirmDelete()",
+                ""
+            );
+            }
+        });
+
+        function onConfirmDelete() {
+            popUpProgressShow();
+
+            var data = new Object();
+            data.listData = [];
+
+            $(".grid-checkbox-body:checked").each(function () {
+                var Data1 = new Object();
+                Data1.COMPANY_CD = $(this).attr('data-companyCd');
+                Data1.LINE_CD = $(this).attr('data-lineCd');
+                Data1.SEQ_NO = $(this).attr('data-SEQNO');
+
+                data.listData.push(Data1);
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: "@Html.Toyota().Page.GetActionUrl("Delete")",
+                contentType: "application/json",
+                dataType: "json",
+                traditional: true,
+                data: JSON.stringify(data),
+                beforeSend: function () {
+                    popUpProgressShow();
+                },
+                success: function (data) {
+                    if (data.Result == "ERROR") {
+                        showErrorMesgGrowl(data.ErrMesgs);
+                    }
+                    else {
+                        showSuccessMesgGrowl("Delete Success");
+                        doSearch(1);
+                    }
+                },
+                error: function (data) {
+                    showErrorMesgGrowl(data.ErrMesgs);
+                },
+                complete: function () {
+                    popUpProgressHide();
+                    $("#deleteConfirmation").modal("hide");
+                }
+            });
+        }
+
+        function onDeleteSingle(linecd, companyCd, seqNo) {
+
+            $.messagebox.show(
+                "Delete Data",
+                "MCSTSTD014C: Are you sure you want to delete the record ?",
+                "INF",
+                "CONFIRM",
+                "onConfirmDeleteSingle("+ "'"+ linecd +"',"+ "'"+companyCd+"',"+ "'"+seqNo+"'"+ ")",
+                ""
+            );
+        }
+
+        function onConfirmDeleteSingle(linecd, companyCd, seqNo) {
+            popUpProgressShow();
+
+            var data = new Object();
+            data.listData = [];
+
+            var datas = new Object();
+            datas.COMPANY_CD = companyCd;
+            datas.LINE_CD = linecd;
+            datas.SEQ_NO = seqNo;
+
+            data.listData.push(datas);
+
+            $("input[name='chkRow']").each(function () {
+                if ($(this).prop('checked')) {
+                    data.listData.push(datas);
+                }
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: "@Html.Toyota().Page.GetActionUrl("Delete")",
+                contentType: "application/json",
+                dataType: "json",
+                traditional: true,
+                data: JSON.stringify(data),
+                beforeSend: function () {
+                    popUpProgressShow();
+                },
+                success: function (data) {
+                    if (data.Result == "ERROR") {
+                        showErrorMesgGrowl(data.ErrMesgs);
+                    }
+                    else {
+                        showSuccessMesgGrowl("Delete Success");
+                        popUpProgressHide();
+                        doSearch(1);
+                    }
+                },
+                error: function (data) {
+                    showErrorMesgGrowl(data.ErrMesgs);
+                },
+                complete: function () {
+                    popUpProgressHide();
+                    $("#deleteConfirmation").modal("hide");
+                }
+            });
+        }
+
+        //[END DELETE]
+
+        //[START UPLOAD]
+        @*$(document).on("click", "#btnUpload", function () {
+            $("#uploadDataFilePopup").modal();
+        });
+
+        $(document).on("click", "#linkDownloadTemplate", function () {
+            popUpProgressShow();
+            $.fileDownload('@Url.Content("~/McapacityMasterSetUp/DownloadTemplate")', {
+                httpMethod: "POST",
+                data: {},
+                successCallback: function (url) {
+                    popUpProgressHide();
+                },
+                failCallback: function (responseHtml, url) {
+                    popUpProgressHide();
+                    var returnResult = JSON.parse(responseHtml.replace("<pre>", "").replace("</pre>", ""));
+                    handleAjaxResultGrowl(returnResult, "Download Template");
+                }
+            });
+        });*@
+        //[END DELETE]
+
+    </script>
+
+}
+
+

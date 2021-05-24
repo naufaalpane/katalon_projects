@@ -1,0 +1,15 @@
+﻿EXEC @RetVal	= dbo.SP_Unit_Production_Control_SaveAddEdit
+@@CFC			= @CFC,
+@@PART_NO		= @PART_NO,
+@@PART_NO2		= @PART_NO2,
+@@PART_NO3		= @PART_NO3,
+@@LINE_CD		= @LINE_CD,
+@@STATUS_CD		= @STATUS_CD,
+@@PART_NAME		= @PART_NAME,
+@@UNIT_SIGN		= @UNIT_SIGN,
+@@TC_FROM		= @TC_FROM, 
+@@TC_TO			= @TC_TO,
+@@SEQ_NO		= @SEQ_NO,
+@@userId		= @userid,
+@@screenMode	= @screenMode,
+@@ErrMesgs		= @ErrMesgs output 

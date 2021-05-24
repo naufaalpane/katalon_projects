@@ -1,0 +1,118 @@
+﻿---------------------------------------------------------------------------------------------------------- 5.Assign New Receive No
+
+if OBJECT_ID('#TempExportOrderAttachment') is not null 
+drop table #TempExportOrderAttachment
+
+select 
+[NOMOR],
+[DATAID]  ,
+[VERSION]  ,
+[REVISIONNO]  ,
+[IMPORTERDCD]  ,
+[EXPORTERCD]  ,
+[ODRTYPE]  ,
+[PCMN]  ,
+[CFC]  ,
+[REEXPCD]  ,
+[AICO/CEPT]  ,
+[PXPLAG]  ,
+[IMPORTERNAME]  ,
+[EXPORTERNAME]  ,
+[SSNO]  ,
+[LINECD]  ,
+[PARTNO]  ,
+[Lot_Code]  ,
+[Exterior_Color]  ,
+[Interior_Color]  ,
+[Control_Mode_Code]  ,
+[Display_Mode_Code]  ,
+[ODRLOT]  ,
+[Nmonth]  ,
+[Nmonth+1]  ,
+[Nmonth+2]  ,
+[Nmonth+3]  ,
+[1N]  ,
+[2N]  ,
+[3N]  ,
+[4N]  ,
+[5N]  ,
+[6N]  ,
+[7N]  ,
+[8N]  ,
+[9N]  ,
+[10N]  ,
+[11N]  ,
+[12N]  ,
+[13N]  ,
+[14N]  ,
+[15N]  ,
+[16N]  ,
+[17N]  ,
+[18N]  ,
+[19N]  ,
+[20N]  ,
+[21N]  ,
+[22N]  ,
+[23N]  ,
+[24N]  ,
+[25N]  ,
+[26N]  ,
+[27N]  ,
+[28N]  ,
+[29N]  ,
+[30N]  ,
+[31N]  ,
+[1N+1]  ,
+[2N+1]  ,
+[3N+1]  ,
+[4N+1]  ,
+[5N+1]  ,
+[6N+1]  ,
+[7N+1]  ,
+[8N+1]  ,
+[9N+1]  ,
+[10N+1]  ,
+[11N+1]  ,
+[12N+1]  ,
+[13N+1]  ,
+[14N+1]  ,
+[15N+1]  ,
+[16N+1]  ,
+[17N+1]  ,
+[18N+1]  ,
+[19N+1]  ,
+[20N+1]  ,
+[21N+1]  ,
+[22N+1]  ,
+[23N+1]  ,
+[24N+1]  ,
+[25N+1]  ,
+[26N+1]  ,
+[27N+1]  ,
+[28N+1]  ,
+[29N+1]  ,
+[30N+1]  ,
+[31N+1]  ,
+[Transportation_Code]  ,
+[Order_Date]  ,
+[Series]  ,
+[Dummy]  ,
+[Termination_Code]  ,
+DENSE_RANK() OVER (
+	ORDER BY IMPORTERDCD , EXPORTERCD, CFC, PCMN, ODRTYPE
+   )  [RANK],
+  ROW_NUMBER() OVER (
+     PARTITION BY IMPORTERDCD , EXPORTERCD, CFC, PCMN, ODRTYPE
+     ORDER BY IMPORTERDCD , EXPORTERCD, CFC, PCMN, ODRTYPE )
+	 [PARTITION] ,
+	 ERRORFLAG
+into #TempExportOrderAttachment from TB_T_EXPORT_ORDER_ATTACHMENT
+
+delete from TB_T_EXPORT_ORDER_ATTACHMENT
+
+insert into TB_T_EXPORT_ORDER_ATTACHMENT select * from #TempExportOrderAttachment
+
+drop table #TempExportOrderAttachment
+
+select 'SUCCESS'    [RESULT]
+

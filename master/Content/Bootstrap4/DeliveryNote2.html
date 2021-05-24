@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+  <title>New Sales System</title>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="dist/css/ionicons.min.css">
+  <!-- daterange picker -->
+  <link rel="stylesheet" href="plugins/daterangepicker/daterangepicker.css">
+  <link rel="stylesheet" href="plugins/bootstrap-datepicker/css/bootstrap-datepicker.css">
+  <!-- iCheck for checkboxes and radio inputs -->
+  <link rel="stylesheet" href="plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+  <!-- Bootstrap Color Picker -->
+  <link rel="stylesheet" href="plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css">
+  <!-- Tempusdominus Bbootstrap 4 -->
+  <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+  <!-- Select2 -->
+  <link rel="stylesheet" href="plugins/select2/css/select2.min.css">
+  <link rel="stylesheet" href="plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+  <!-- Bootstrap4 Duallistbox -->
+  <link rel="stylesheet" href="plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css">
+  <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="dist/css/adminlte.css">
+  <link rel="stylesheet" href="dist/css/tdk4.css">
+  <!-- Google Font: Source Sans Pro -->
+  <link href="fonts/sourcesanspro.css" rel="stylesheet">
+  <link href="fonts/leaguespartan.css" rel="stylesheet">
+   <!--<link href="http://allfont.net/allfont.css?fonts=league-spartan" rel="stylesheet" type="text/css" />-->
+  <style type="text/css">
+			/* some elements used in demo only */
+			.spinner-preview {
+				width: 100px;
+				height: 100px;
+				text-align: center;
+				margin-top: 60px;
+			}
+			
+			.dropdown-preview {
+				margin: 0 5px;
+				display: inline-block;
+			}
+			.dropdown-preview  > .dropdown-menu {
+				display: block;
+				position: static;
+				margin-bottom: 5px;
+			}
+			#clock
+            {
+                color: White;
+                padding: 0 10px;
+            }
+            .app-title
+            {
+                font-family: 'League Spartan Bold', arial;
+                font-size: 21px;
+                line-height: 1;
+                vertical-align: bottom;
+                color: white;
+            }
+            .logo-title
+            {
+                width: 22px;
+            }
+            .li-logout
+            {
+                background-color: #2D3E5C;
+            }
+            .user-info
+            {
+                line-height: 16px !important;
+            }
+            .nav-user-photo
+            {
+                max-width: 35px !important;
+            }
+            
+            /* change header navbar default background color */
+            .no-skin .navbar
+            {
+                background: #393939 none repeat scroll 0 0;
+                box-shadow: 0 !important;
+                margin-bottom: 0 !important;
+            }
+            
+            /* change free space on the left header navbar */
+            #navbar-container
+            {
+                padding-left: 0;
+            }
+            .navbar-brand
+            {
+                padding-left: 8px;
+            }
+            
+            /* change padding for page content */
+            .page-content
+            {
+                padding: 8px 8px 0 !important;
+            }
+
+
+            /* table */
+            .table {
+              margin-bottom: 0rem !important;
+              table-layout: fixed;
+            }
+
+            .red {
+              background-color: red;
+            }
+
+            .light-blue {
+              background-color: lightblue;
+            }
+		</style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+<div class="wrapper">
+  <!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-dark navbar-dark-blue">
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+      </li>
+      
+    </ul>
+    <div></div>
+    <span class="app-title">New Sales System</span>
+
+    <!-- Right navbar links -->
+    
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link"  href="Help">
+          
+          <i class="text-white far fa-2x fa-life-ring"></i>
+       
+        </a>
+       </li>
+      <li class="nav-item">
+       
+      </li>
+      
+       
+        
+    </ul>
+    <div></div>
+  </nav>
+  <div class="logout">
+     <div class="row justify-content-center align-items-center h-100 bg-danger" >
+      <div class="col bg-danger justify-content-center align-items-center" style="margin-top: auto; margin-bottom: auto;">
+        <a href="Login/Logout">
+          <i class="fas fa-2x fa-sign-out-alt"></i> <span class="text">Logout</span>
+        
+        </a>
+      </div>
+       <!--<div class="col bg-info " style="height: 100%;">
+        <a href="#" title="Welcome, ...">
+          <img class="nav-user-photo" src="@fn" onerror="this.onerror=null; this.src='/Content/images/00000000.jpg'"/>
+          <span class="user-info">
+            <small>Welcome,</small> User
+          </span>
+        </a>
+      </div>-->
+    </div>
+  </div>
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  <aside class="main-sidebar elevation-4 sidebar-light-warning">
+    <!-- Brand Logo -->
+    <a href="index3.html" class="brand-link navbar-dark-blue">
+      <img src="img/app-logo.png" alt="App Logo" class="brand-image"
+           style="opacity: .8">
+      <span class="brand-text app-title">Sales</span>  
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Sidebar user panel (optional) -->
+      <div class="user-panel mt-2 pb-1 mb-2 d-flex">
+        <div class="image">
+          <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+        </div>
+        <div class="info">
+          <a href="#" class="d-block">Welcome, TMMIN User</a>
+        </div>
+      </div>
+       
+      <!-- Sidebar Menu -->
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
+          <!-- Add icons to the links using the .nav-icon class
+               with font-awesome or any other icon font library -->
+          <li class="nav-item has-treeview">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon fas fa-home"></i>
+                  <p>
+                    Home
+                  </p>
+                </a>
+                <div class="text-center" style="margin-bottom: 3px;">
+                  <hr id="hrsrc" style="margin:0;padding:0;">
+              </div>
+               </li>
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-table"></i>
+              <p>
+                Master
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Material Master</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Price Master</p>
+                </a>
+              </li>
+              
+            </ul>
+          </li>
+          
+          <li class="nav-item has-treeview menu-open">
+            <a href="#" class="nav-link active">
+              <i class="nav-icon fas fa-copy"></i>
+              <p>
+                Delivery Note
+                <i class="fas fa-angle-left right"></i>
+                
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Delivery Note Inquiry</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#" class="nav-link  active">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Delivery Note Creation</p>
+                </a>
+              </li>
+            
+            </ul>
+          </li>
+          
+        </ul>
+      </nav>
+      <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">       
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-left">
+              <li class="breadcrumb-item text-lg active"><a href="#">Home</a></li>
+              <li class="breadcrumb-item text-lg">Delivery Note Creation</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <form class="form-horizontal">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12 col-sm-4 col-md-4">
+                <div class="form-group row">
+                  <label for="" class="col-4 col-form-label">Delivery Note</label>
+                  <div class="col-8">
+                    <input type="text" class="form-control mandatory">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="" class="col-4 col-form-label">Order No</label>
+                  <div class="col-8">
+                    <input type="text" class="form-control mandatory">
+                  </div>
+                </div>
+                
+              </div>
+              <div class="col-12 col-sm-4 col-md-4">
+                <div class="form-group row">
+                  <label for="" class="col-4 col-form-label">Doc Date</label>
+                  <div class="col-8">
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">
+                          <i class="far fa-calendar-alt"></i>
+                        </span>
+                      </div>
+                      <input type="text" class="form-control  float-right mandatory datepicker" data-provide="datepicker" >
+                    </div>
+                  </div>
+                  </div>
+                  <div class="form-group row">
+                    <label class="col-4 col-form-label">Plant Code</label>
+                    <div class="col-8">
+                      <select class="form-control  select2 select2-danger mandatory" data-dropdown-css-class="select2-yellow" style="width: 100%;" >
+                        
+                        <option>1000</option>
+                        <option>2000</option>
+                        <option>3000</option>
+                        <option>4000</option>
+                      </select>
+                    </div>
+                  </div>
+                
+                </div>
+            
+              <div class="col-12 col-sm-4 col-md-4">
+                <div class="form-group row">
+                  <label class="col-4 col-form-label">Sloc Code</label>
+                  <div class="col-8">
+                    <select class="form-control  select2 select2-danger mandatory" data-dropdown-css-class="select2-yellow"  style="width: 100%;">
+                      
+                      <option>1100</option>
+                      <option>1200</option>
+                      <option>2100</option>
+                      <option>2200</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="" class="col-4 col-form-label">Remark</label>
+                  <div class="col-8">
+                    <textarea class="form-control " rows="3" placeholder="Enter ..."></textarea>
+                  </div>
+                </div>
+              </div>
+            
+            </div>
+          </div>
+
+          <div class="text-center" style="margin-bottom: 3px;">
+            <hr id="hrsrc" style="margin:0;padding:0;">
+        </div>
+
+        <div class="row mt-1">
+          <div class="col-12 col-sm-4 col-md-4">
+            <button class="btn btn-primary">Submit</button>
+            <button class="btn btn-primary">Save As Draft</button>
+            <button class="btn btn-danger">Cancel</button>
+          </div>
+          <div class="col-12 col-sm-8 col-md-8">
+            
+          </div>
+        </div>
+        <div class="row mt-1">
+        <div class="row" id="WODetail">
+          <div class="table-responsive col-xs-12 col-sm-12" style="overflow: hidden;">
+              <div style="border: 1pt solid #ccc;">
+                  <div id="tScrollHead" style="width: 98.65%; overflow: hidden;">
+                      <table id="dynamic-table" class="table table-striped table-bordered table-condensed table-fixed" style="width: 100%; max-width: 1278px !important;">
+                          <thead>
+                              <tr>
+                                  <th class="text-center" style="width:30px"></th>
+                                  <th class="text-center" style="width:100px">Source Type</th>
+                                  <th class="text-center" style="width:100px">Production Purpose</th>
+                                  <th class="text-center" style="width:150px">Material No</th>
+                                  <th class="text-center" style="width:200px">Material Desc</th>
+                                  <th class="text-center" style="width:100px">Posting Qty</th>
+                                  <th class="text-center" style="width:100px">UOM</th>
+                                  
+                                  <th class="text-center" style="width:100px">Action</th>
+                              </tr>
+                          </thead>
+                      </table>
+                  </div>
+                  <div id="tScrollBody" style="overflow: scroll; height: 260px;">
+                      <table id="addTable" class="table table-striped table-bordered table-condensed table-fixed" style="width: 100%; max-width: 1278px !important;">
+                          <tbody id="add-grid">
+                              <tr id="empty-row" class="d-none">
+                                  <!--row to define column width, if deleted will make column size disorganized when edit-->
+                                  <td style="width:30px"></td>
+                                  <td style="width:100px"></td>
+                                  <td style="width:100px"></td>
+                                  <td style="width:150px"></td>
+                                  <td style="width:200px"></td>
+                                  <td style="width:100px"></td>
+                                  <td style="width:100px"></td>
+                                  <td style="width:100px"></td>
+                                  
+                              </tr>
+                              <tr id="addrow">
+                                  <td class="text-center" id="collapse" style="width:30px">
+                                      <div id="collapseitem" onclick="javascript:collapseItem('Y', '');" style="display:none">
+                                          <span id="icon-class" class="fa fa-minus-square-o" style="cursor: pointer;"></span>
+                                      </div>
+                                  </td>
+                                  <td class="text-center" id="row_col_1" style=" width:100px"></td>
+                                  <td class="text-center" id="row_col_2" style="width:100px">
+                                     
+                                  </td>
+                                  
+                                  <td id="row_col_3" style="width:150px">
+                                      <div class="input-group pos-rel" style="width: 100%;">
+                                          <div id="lookupvalclass" class="input-group input-group-xs lookup">
+                                              <input id="aitemcat" class="form-control  addinput" type="text" readonly="readonly" />
+                                              <span class="input-group-btn">
+                                                  <button id="valbutton" class="addinput custom-button-grid btn btn-warning btn-xs" type="button" onclick="javascript:getValClass(1)">&nbsp<i class="fa fa-search"></i>&nbsp</button>
+                                              </span>
+                                          </div>
+                                      </div>
+                                  </td>
+                                  <td id="row_col_4" style="width:200px">
+                                    <input type="text" class="form-control" id="matdesc"  readonly="readonly">
+                                  </td>
+                                  <td id="row_col_5" style="width:100px">
+                                    <input type="text" class="form-control" id="matdesc" >
+                                  </td>
+                                  <td id="row_col_6" style="width:100px">
+                                    <input type="text" class="form-control" id="matdesc"  readonly="readonly">
+                                  </td>
+                                 
+                                  <td class="text-center" style="width:100px">
+                                      <i class="fa fa-save btnsaveitem btn btn-primary" onclick="javascript:SaveItem('Save', '1')"></i>
+                                      <i class="fa fa-trash-alt btncancelitem btn btn-danger" onclick="javascript:CancelSaveItem()"></i>
+                                  </td>
+                              </tr>
+                              <tr id="hiddenrow" class="d-none"></tr>
+                              <tr id="copyrow" class="d-none"></tr>
+                          </tbody>
+                          <tbody id="detail-grid-creation">
+                              
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+        </div>
+      </div>
+
+        </form>
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+  </aside>
+  <!-- /.control-sidebar -->
+
+  <!-- Main Footer -->
+  <footer class="main-footer">
+    <strong>Copyright &copy; 2014-2020 <a href="#">Toyota Motor Manufacturing Indonesia</a>.</strong>
+    All rights reserved.
+    <div class="float-right d-none d-sm-inline-block">
+      <b>Version</b> 1.0.0
+    </div>
+  </footer>
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+<!-- jQuery -->
+<script src="plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap -->
+<script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- overlayScrollbars -->
+<script src="plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<script src="plugins/select2/js/select2.full.min.js"></script>
+<!-- Bootstrap4 Duallistbox -->
+<script src="plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>
+<!-- InputMask -->
+<script src="plugins/moment/moment.min.js"></script>
+<script src="plugins/inputmask/min/jquery.inputmask.bundle.min.js"></script>
+<!-- date-range-picker -->
+<script src="plugins/daterangepicker/daterangepicker.js"></script>
+<script src="plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<!-- bootstrap color picker -->
+<script src="plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
+<!-- Tempusdominus Bootstrap 4 -->
+<script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+<!-- Bootstrap Switch -->
+<script src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
+<!-- AdminLTE App -->
+<script src="dist/js/adminlte.js"></script>
+
+<!-- OPTIONAL SCRIPTS -->
+<script src="dist/js/demo.js"></script>
+
+<!-- PAGE PLUGINS -->
+<!-- jQuery Mapael -->
+<script src="plugins/jquery-mousewheel/jquery.mousewheel.js"></script>
+<script src="plugins/raphael/raphael.min.js"></script>
+<script src="plugins/jquery-mapael/jquery.mapael.min.js"></script>
+<script src="plugins/jquery-mapael/maps/usa_states.min.js"></script>
+<!-- ChartJS -->
+<script src="plugins/chart.js/Chart.min.js"></script>
+<script>
+  $(function () {
+    //Initialize Select2 Elements
+    $('.select2').select2()
+
+    $(".select2").each(function() {
+      $(this).siblings(".select2-container").css('border', '1px solid red');
+    });
+    //Initialize Select2 Elements
+    $('.select2bs4').select2({
+      theme: 'bootstrap4'
+    })
+    
+    //Bootstrap Duallistbox
+    $('.duallistbox').bootstrapDualListbox()
+
+    $('.datepicker').datepicker({
+      format: "dd/mm/yyyy",
+      autoclose: true,
+      todayBtn: true,
+      orientation: 'bottom'
+      
+    });
+  })
+</script>
+<!-- PAGE SCRIPTS -->
+</body>
+</html>

@@ -1,0 +1,1 @@
+﻿SELECT * FROM fn_GetDynamicDailyHeader(@yearMonth)

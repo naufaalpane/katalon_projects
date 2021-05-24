@@ -1,0 +1,286 @@
+﻿@using System;
+@using Toyota.Common.Web.Platform;
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Company_CD = (string)ViewData["Company_CD"];
+
+
+}
+
+@Html.Partial("_MenuArea")
+
+@Html.Partial("_MessageArea")
+
+@section HeadScript{
+
+}
+
+<!-- Modal Upload-->
+<div id="uploadDataFilePopup" class="modal fade" role="dialog" aria-hidden="true" aria-labelledby="basicModal">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="popup-title">Upload Area</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- Dropzone AREA-->
+                        <div id="actions" class="row">
+                            <div class="col-md-12 fileinput-button mb-2">
+                                <div class="row justify-content-center" style="padding: 5px;">
+                                    <i class="fa fa-cloud-upload-alt fa-5x" style="opacity: 0.3"></i>
+                                </div>
+                                <div class="row justify-content-center" style="padding: 5px;">
+                                    <span style="color: #999; font-size: 20px;"><i class="fa fa-caret-right blue" style="opacity: 0.7"></i> Drop file to upload <small>(or click)</small> </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="table table-striped" id="previews">
+                                <div id="template" class="file-row">
+                                    <div>
+                                        <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width:0%;" data-dz-uploadprogress><span class="progress-text"></span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Dropzone AREA-->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <div class="text-left">
+
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <div class="text-right">
+                        <button type="button" class="btn btn-info" id="linkDownloadTemplate" onclick="DownloadTemplate()">Download Template </button>
+                        <button type="button" id="btnUploadPopupClose" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Upload end-->
+<script src="~/Content/Bootstrap4/plugins/chosen/docsupport/jquery-3.2.1.min.js"></script>
+
+
+@section BodyScript {
+
+    <script src="~/Content/tdk/jquery.filedownload.js"></script>
+
+    <script>
+        @{
+        <TEXT>  var GET =  "@Company_CD" </TEXT>
+         }
+
+        $("#comcd").text(GET);
+
+    $("#ExecuteButton").prop('disabled', true);
+
+    var FileName = "";
+
+    function DownloadFile()
+    {
+        $.fileDownload('/OrderAcceptanceExportOrderBatch/DownloadResult',
+            {
+                httpMethod: "POST",
+                successCallback: function (url) {
+                    console.log("Download Success");
+                },
+                failCallback: function (responseHtml, url) {
+                    $.messagepanel.show(responseHtml);
+                }
+            });
+    }
+
+    function Execute()
+    {
+        $.messagebox.show(
+                            "Execute",
+                            "Are you sure to execute the process ? ",
+                            "INF",
+                            "CONFIRM",
+                            "Execute1()",
+                            ""
+                        );
+    }
+
+    function Execute1() {
+        popUpProgressShow();
+        $.ajax(
+            {
+                url: "/OrderAcceptanceExportOrderBatch/Execute",
+                data: {
+                    Company_CD: $("#comcd").text(),
+                    Version: 'T',
+                    FileName: FileName
+                },
+                type: "json",
+                success: function (response) {
+                    console.log(response.Result);
+
+                    if (response.Result === "SUCCESS") {
+                        DownloadFile();
+                        $.messagebox.show("Execute Success", response.SuccMesgs[0], "INF");
+                    }
+                    else {
+                        $.messagebox.show("Upload Error", response.ErrMesgs[0], "ERR");
+                    }
+
+                    popUpProgressHide();
+                },
+                error: function (response) {
+                    $.messagebox.show("Upload Error", response, "ERR");
+                    popUpProgressHide();
+                }
+
+            }
+
+            );
+    }
+
+    //////////// OPREK UPLOAD AREA ///////////////////////////
+    function READY()
+    {
+       var previewNode = document.querySelector("#template");
+       previewNode.id = "";
+       var previewTemplate = previewNode.parentNode.innerHTML;
+       previewNode.parentNode.removeChild(previewNode);
+
+        //var COMCD
+        var myDropzone = new Dropzone("#actions", {
+            url: "/OrderAcceptanceExportOrderBatch/UploadFileSave",
+            maxFiles: 1,
+           previewTemplate: previewTemplate,
+            autoQueue: true,
+            clickable: ".fileinput-button",
+            params: { 'Company_CD': 'xyz', 'Version': 'aaa' },
+            uploadprogress: function (file, progress, bytesSent) {
+                console.log(file);
+                console.log(progress);
+                console.log(bytesSent);
+                if (file.previewElement) {
+                    console.log("Masuk");
+                    var progressElement = file.previewElement.querySelector("[data-dz-uploadprogress]");
+                    progressElement.style.width = progress + "%";
+                    progressElement.querySelector(".progress-text").textContent = Math.round(progress) + "%";
+                }
+            },
+            success: function (file,response) {
+                console.log(file);
+                console.log(response);
+                if (response.Result === "SUCCESS") {
+                    resetUpload();
+                    FileName = response.SuccMesgs[1];
+                    $("#FileName").text("File Uploaded : " + response.SuccMesgs[1]);
+                    $("#ExecuteButton").prop('disabled', false);
+                    $.messagebox.show("Upload Success", "Upload Success", "INF");
+                }
+                else {
+                    resetUpload();
+                    $.messagebox.show("Upload Error", response.ErrMesgs, "ERR");
+                }
+
+            },
+            error: function (file, response) {
+                resetUpload();
+                console.log("Masuk Error");
+                $.messagebox.show("Upload Error", response.ErrMesgs, "ERR");
+            }
+
+        });
+
+        $(document).on("click", "#btnUpload", function () {
+            $("#uploadDataFilePopup").modal();
+        });
+    }
+
+    $(document).ready(function () {
+        READY();
+    });
+
+  function DownloadTemplate() {
+      $.fileDownload('/OrderAcceptanceExportOrderBatch/DownloadTemplate',
+          {
+              httpMethod: "POST",
+              successCallback: function (data) {
+                  console.log("Download Template Success");
+              },
+              failCallback: function (responseHtml) {
+                  $.messagepanel.show(responseHtml);
+              }
+          });
+  }
+
+
+    function resetUpload() {
+        $("#btnUploadPopupClose").click();
+    var htmlUpload = '   <div class="modal-dialog modal-md">                                                                                                                                                                          '
+ + '     <div class="modal-content">                                                                                                                                                                                '
+ + '         <div class="modal-header">                                                                                                                                                                             '
+ + '             <h4 class="modal-title" id="popup-title">Upload Area</h4>                                                                                                                                          '
+ + '         </div>                                                                                                                                                                                                 '
+ + '                                                                                                                                                                                                                '
+ + '         <div class="modal-body">                                                                                                                                                                               '
+ + '             <div class="row">                                                                                                                                                                                  '
+ + '                 <div class="col-md-12">                                                                                                                                                                        '
+ + '                     <!-- Dropzone AREA-->                                                                                                                                                                      '
+ + '                     <div id="actions" class="row">                                                                                                                                                             '
+ + '                         <div class="col-md-12 fileinput-button mb-2">                                                                                                                                          '
+ + '                             <div class="row justify-content-center" style="padding: 5px;">                                                                                                                     '
+ + '                                 <i class="fa fa-cloud-upload-alt fa-5x" style="opacity: 0.3"></i>                                                                                                              '
+ + '                             </div>                                                                                                                                                                             '
+ + '                             <div class="row justify-content-center" style="padding: 5px;">                                                                                                                     '
+ + '                                 <span style="color: #999; font-size: 20px;"><i class="fa fa-caret-right blue" style="opacity: 0.7"></i> Drop file to upload <small>(or click)</small> </span>                  '
+ + '                             </div>                                                                                                                                                                             '
+ + '                         </div>                                                                                                                                                                                 '
+ + '                     </div>                                                                                                                                                                                     '
+ + '                     <div class="row">                                                                                                                                                                          '
+ + '                         <div class="table table-striped" id="previews">                                                                                                                                        '
+ + '                             <div id="template" class="file-row">                                                                                                                                               '
+ + '                                 <div>                                                                                                                                                                          '
+ + '                                     <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">                                                  '
+ + '                                         <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width:0%;" data-dz-uploadprogress><span class="progress-text"></span></div>        '
+ + '                                     </div>                                                                                                                                                                     '
+ + '                                 </div>                                                                                                                                                                         '
+ + '                             </div>                                                                                                                                                                             '
+ + '                         </div>                                                                                                                                                                                 '
+ + '                     </div>                                                                                                                                                                                     '
+ + '                     <!-- Dropzone AREA-->                                                                                                                                                                      '
+ + '                 </div>                                                                                                                                                                                         '
+ + '             </div>                                                                                                                                                                                             '
+ + '         </div>                                                                                                                                                                                                 '
+ + '         <div class="modal-footer">                                                                                                                                                                             '
+ + '             <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">                                                                                                                                                 '
+ + '                 <div class="text-left">                                                                                                                                                                        '
+ + '                                                                                                                                                                                                                '
+ + '                 </div>                                                                                                                                                                                         '
+ + '             </div>                                                                                                                                                                                             '
+ + '             <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">                                                                                                                                                 '
+ + '                 <div class="text-right">                                                                                                                                                                       '
+ + '                     <button type="button" class="btn btn-info" id="linkDownloadTemplate" onclick="DownloadTemplate()" >Download Template </button>                                                                                           '
+ + '                     <button type="button" id="btnUploadPopupClose" class="btn btn-default" data-dismiss="modal">Close</button>                                                                                 '
+ + '                 </div>                                                                                                                                                                                         '
+ + '             </div>                                                                                                                                                                                             '
+ + '         </div>                                                                                                                                                                                                 '
+ + '     </div>                                                                                                                                                                                                     '
+ + ' </div>                                                                                                                                                                                                          '
+        ;
+
+    $("#uploadDataFilePopup").html(htmlUpload);
+
+    console.log("Masuk ready");
+    READY();
+
+    }
+    </script>
+}

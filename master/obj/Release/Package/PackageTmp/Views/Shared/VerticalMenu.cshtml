@@ -1,0 +1,144 @@
+﻿@using System.Text 
+@using Toyota.Common.Credential
+
+@{
+    //MenuList menuList = Html.Toyota().Page.Menu;
+    MenuList menuList = Html.Toyota().Page.AuthorizedMenu;
+    User user = Html.Toyota().Page.User;
+    string URL = "";
+    if (user != null && user.Company.Id == "1000")
+    {
+        URL = "http://hrportal.toyota.co.id/Content/images/" + user.RegistrationNumber + ".jpg";
+    }
+    else
+    {
+        URL = "~/Content/Bootstrap4/images/avatars/anonymous.jpg";
+    }
+}
+
+@functions {
+    MvcHtmlString _DrawMenuIcon(Menu menuItem)
+    {
+        StringBuilder scriptBuilder = new StringBuilder();
+        if (!string.IsNullOrEmpty(menuItem.Glyph))
+        {
+            scriptBuilder.Append(string.Format("<i class=\"nav-icon fa fa-{0} \"></i>", menuItem.Glyph.ToLower()));
+        }
+        else
+        {
+            scriptBuilder.Append(string.Format("<i class=\"nav-icon far fa-circle \"></i>"));
+        }
+        if (!string.IsNullOrEmpty(menuItem.IconUrl))
+        {
+            // TODO: gambar icon di sini
+        }
+        return new MvcHtmlString(scriptBuilder.ToString());
+    }
+
+    string menuId = "";
+    MvcHtmlString _DrawSubmenu(MenuList submenuList, string parentId){
+        StringBuilder menuBuilder = new StringBuilder();
+
+        foreach (Menu submenuItem in submenuList)
+        {
+
+            menuId = string.Format("{0}-{1}", parentId, submenuItem.Id);
+            menuBuilder.Append(string.Format("<li id=\"{0}\" data-parent=\"{1}\" class=\"nav-item has-treeview\">", menuId, parentId));
+			submenuItem.NavigateUrl = _RemoveDoubleUrl(submenuItem.NavigateUrl);
+            if (submenuItem.HasChildren())
+            {
+                menuBuilder.Append(string.Format("<a href=\"{0}\" class=\"nav-link\">{1} <p>{2}</p> <i class=\"right fas fa-angle-left\"></i> </a>", submenuItem.NavigateUrl, _DrawMenuIcon(submenuItem), submenuItem.Text));
+                // menuBuilder.Append("<b class=\"arrow\"></b>");
+                menuBuilder.Append("<ul class=\"nav nav-treeview\">");
+                menuBuilder.Append(_DrawSubmenu(submenuItem.Children, menuId));
+                menuBuilder.Append("</ul>");
+            }
+            else
+            {
+                menuBuilder.Append(string.Format("<a href=\"{0}\" class=\"nav-link\" data-parent=\"{1}\" data-menu=\"{2}\">{3} <p>{4}</p></a>", submenuItem.NavigateUrl, parentId, menuId, _DrawMenuIcon(submenuItem), submenuItem.Text));
+                //menuBuilder.Append("<b class=\"arrow\"></b>");
+            }
+
+            menuBuilder.Append("</li>");
+        }
+
+        return new MvcHtmlString(menuBuilder.ToString());
+    }
+	
+	string _RemoveDoubleUrl(string url)
+    {
+        return _RemoveDoubleUrl(_RemoveDoubleUrl(url, "http://"), "https://");
+    }
+
+    string _RemoveDoubleUrl(string url, string protocolStr)
+    {
+        int idx = url.IndexOf(protocolStr);
+        int lastIdx = url.LastIndexOf(protocolStr);
+
+        return idx != lastIdx ? url.Substring(lastIdx) : url;
+    }    
+}
+
+
+@if (menuList!=null)
+{
+ 
+<div class="sidebar">
+    <!-- Sidebar user panel (optional) -->
+    <div class="user-panel mt-2 pb-1 mb-2 d-flex">
+        <div class="image">
+                <img src="@Url.Content(@URL)" class="img-circle elevation-2" alt="@(user.Name)'s Photo" >
+        </div>
+        <div class="info">
+                <a href="#" class="d-block">Welcome, @user.Name</a>
+        </div>
+    </div>
+
+    <!-- Sidebar Menu -->
+    <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
+            @foreach (Menu menuItem in menuList)
+            {
+
+                if (!menuItem.Visible)
+                {
+                    continue;
+                }
+
+                <li id="@menuItem.Id"  class="nav-item has-treeview">
+                    @if (menuItem.HasChildren())
+                    {
+                        <a href="@menuItem.NavigateUrl" class="nav-link">
+                            @_DrawMenuIcon(menuItem)
+                            <p>
+                                @menuItem.Text
+                            </p>
+
+                            <p class="right fas fa-angle-left"></p>
+                        </a>
+
+                       
+
+                        <ul class="nav nav-treeview">
+                            @_DrawSubmenu(menuItem.Children, menuItem.Id)
+                        </ul>
+                    }
+                    else
+                    {
+                        <a href="@menuItem.NavigateUrl" class="nav-link">
+                            @_DrawMenuIcon(menuItem)
+                            <p> @menuItem.Text </p>
+                        </a>
+
+                      
+                    }
+                </li>
+
+            }
+
+        </ul>
+    </nav>
+    <!-- /.sidebar-menu -->
+</div>
+    
+}

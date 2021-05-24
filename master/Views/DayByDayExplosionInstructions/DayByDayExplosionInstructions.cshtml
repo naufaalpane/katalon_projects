@@ -1,0 +1,249 @@
+﻿@using System;
+@using Toyota.Common.Web.Platform;
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section HeadScript{
+
+}
+
+@Html.Partial("_SearchCriteria")
+
+<div id="gridTableCourse">
+    @Html.Partial("_GridView")
+</div>
+@section BodyScript{
+    <script type="text/javascript" src="@Url.Content("~/Content/js/jquery.blockUI.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/js/common.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/js/jquery-msgbox/jquery.msgBox.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/tdk/jquery.filedownload.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/tdk/jquery.bootstrap-growl.min.js")"></script>
+
+    <script>
+
+        var trBaseColor;
+        var dataEditCopy = [];
+        var gScreenMode = "";
+        var gDestCdList = [];
+
+        $(document).ready(function () {
+            btnClear();
+            choice('Monthly');
+
+            $(document).on("change", ".txtYear", function () {
+                $(this).closest('tr').find('input[type=checkbox]').prop("checked", true);
+            });
+
+            $("#btnClear").on("click", function () {
+                $("#txtYear").prop("disabled", false);
+                $("#tabelMonthly tbody tr").remove();
+                $("#tabelMonthly tbody").append('<tr><td colspan="3">No Data Found</td></tr>');
+                $("#executeBtn").prop("disabled", true);
+            })
+        })
+        function btnClear() {
+            initialDisplay();
+        }
+        function initialDisplay() {
+            //$("#monthlyRadio").prop("checked", true);
+            //$("#tabelMonthly").show();
+            //$("#tabelKeihen").hide();
+            $("input[type=radio]").prop("checked", false);
+            //$("#btnSearcKeihen").prop('disabled', true);
+            $("#txtYear, button").attr("disabled", true);
+            $("#executeBtn").prop("disabled", true);
+            $("#txtYear").datepicker({
+                format: 'yyyymm',
+                autoclose: true,
+                startDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1),
+                minViewMode: 'months',
+                container: '#MonthDatePicker'
+            });
+        }
+
+        function doSearch() {
+            popUpProgressShow();
+            if ($("#txtYear").val().length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "@Html.Toyota().Page.GetActionUrl("Search")",
+                    data: {
+
+                        PACK_MONTH: $("#txtYear").val(),
+                        COMPANY_CD: $("#comcd").text()
+
+                    },
+                    success: function (data) {
+                        $("#tabelMonthly").html(data);
+                        popUpProgressHide();
+                        $("#executeBtn").prop("disabled", false);
+                        $("#btnSearchKeihen").prop("disabled", true);
+                        //$("#tabelKeihen").hide();
+                        $("#monthlyRadio").prop("checked", true);
+                        $("input[type=checkbox]").prop("checked", true);
+                        $(".tableScroll").css({ "min-height": "350px !important", "max-height": "" });
+                        $("#txtYear").prop("disabled", true);
+                    },
+                    error: function (data) {
+                        popUpProgressHide();
+                    }
+                });
+            } else {
+                showErrorMesgGrowl("Year Month should not be empty")
+                popUpProgressHide();
+            }
+
+         }
+
+        function doSearchKeihen() {
+            popUpProgressShow();
+            $.ajax({
+                type: "POST",
+                url: "@Html.Toyota().Page.GetActionUrl("SearchKeihen")",
+                data: { COMPANY_CD: $("#comcd").text()  },
+                success: function (data) {
+                    $("#tabelKeihen").html(data);
+                    $("#keihenRadio").prop("checked", true);
+                    //$("#tabelMonthly").hide();
+                    $("#executeBtn").prop("disabled", false);
+                    $(".txtYear").datepicker({
+                        format: 'yyyy/mm/dd',
+                        autoclose: true,
+                        startDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1),
+                        container: '#MonthDatePicker'
+                    });
+                    popUpProgressHide();
+                },
+                error: function (data) {
+                    popUpProgressHide();
+                }
+            });
+
+           }
+        function choice(e) {
+            if (e == "Monthly") {
+                //$("#tabelMonthly").show();
+                //$("#tabelKeihen").hide();
+                var initialDate = new Date(new Date().getFullYear(), new Date().getMonth() + 1);
+                $("#txtYear").datepicker('update', initialDate);
+                $("#monthlyRadio").prop("checked", true);
+                $("#btnSearchKeihen").prop("disabled", true);
+                $("#btnSearchMonthly, #txtYear").prop("disabled", false);
+                $("#btnClear").prop("disabled", false);
+                $("#executeBtn").prop("disabled", true);
+
+                $("#tabelKeihen tbody tr").remove();
+                $("#tabelKeihen tbody").append('<tr><td colspan="4">No Data Found</td></tr>');
+            }
+            else if (e == "Keihen") {
+               tabelKeihen
+                //$("#tabelMonthly").hide();
+                //$('#tabelMonthly tbody').empty();
+                //$('#tabelKeihen tbody').empty();
+                //$("#tabelKeihen").show();
+                $("#btnSearchMonthly, #txtYear").prop("disabled", true);
+                $("#btnClear").prop("disabled", true);
+                $("#btnSearchKeihen").prop("disabled", false);
+                $("#executeBtn").prop("disabled", true);
+                $("#txtYear").val('');
+
+                $("#tabelMonthly tbody tr").remove();
+                $("#tabelMonthly tbody").append('<tr><td colspan="3">No Data Found</td></tr>');
+            }
+
+
+        }
+        function btnExecute() {
+            if ($("input[type='radio'][name='choice']:checked").val() == 'M') {
+                var data = new Object();
+                data.listData = [];
+
+                $(".grid-checkbox-body:checked").each(function () {
+                    //var Data1 = new Object();ss
+                    //Data1.RECEIVE_NO = $(this).attr('data-receiveNo');
+                    data.listData.push($(this).attr('data-rcvNo'));
+                    //console.log(data);
+                });
+                var RECEIVE_NO = data.listData.join(',');
+                if (RECEIVE_NO.length != 0) {
+                    popUpProgressShow();
+                    $.ajax({
+                        type: "POST",
+                        url: "@Html.Toyota().Page.GetActionUrl("Execute")",
+                        data: {
+                            PROCESS_CD: 'M',
+                            COMPANY_CD: $("#comcd").text(),
+                            RECEIVE_NO: RECEIVE_NO
+
+
+
+                        },
+                        success: function (data) {
+                            //initialDisplay();
+                            doSearch();
+                            popUpProgressHide();
+                            showSuccessMesgGrowl("Execution completed succesfully")
+                        },
+                        error: function (data) {
+                            popUpProgressHide();
+                        }
+                    });
+                } else {
+                    showErrorMesgGrowl("There is no data to be processed");
+                }
+
+            }
+            else
+            {
+                var data = new Object();
+                data.listData = [];
+
+                $(".grid-checkbox-body:checked").each(function () {
+                    //var Data1 = new Object();
+                    //Data1.RECEIVE_NO = $(this).attr('data-receiveNo');
+                    data.listData.push($(this).attr('data-receiveNo'));
+                    console.log(data);
+                });
+                var RECEIVE_NO = data.listData.join(',');
+
+                var today = new Date();
+                var dd = String(today.getDate()).padStart(2, '0');
+                var mm = String(today.getMonth() + 1).padStart(2, '0');
+                var yyyy = today.getFullYear();
+
+                START_DATE = yyyy + '/' + mm + '/' + dd;
+                console.log(START_DATE);
+                if (RECEIVE_NO.length != 0) {
+                    $.ajax({
+                        type: "POST",
+                        url: "@Html.Toyota().Page.GetActionUrl("Execute")",
+                        data: {
+                            PROCESS_CD: 'K',
+                            COMPANY_CD: $("#comcd").text(),
+                            RECEIVE_NO: RECEIVE_NO,
+                            START_DATE: START_DATE
+                        },
+                        success: function (data) {
+                            //initialDisplay();
+                            doSearchKeihen();
+                            popUpProgressHide();
+                            showSuccessMesgGrowl("Execution completed succesfully")
+                        },
+                        error: function (data) {
+                            popUpProgressHide();
+                        }
+                    });
+                } else {
+                    showErrorMesgGrowl("There is no start date set");
+                }
+                  
+
+            }
+
+
+        }
+
+    </script>
+}

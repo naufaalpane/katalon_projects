@@ -1,0 +1,54 @@
+﻿@using GPPSU.Models.DayByDayExplosionInstructions;
+@using GPPSU.Models.Common;
+
+@{
+    List<DayByDayExplosionInstructions> ListDataKeihen = (List<DayByDayExplosionInstructions>)ViewData["ListDataKeihen"];
+}
+
+<table class="customTable text-center" width="100%" id="">
+    <thead>
+        <tr class="text-center">
+            <th class="hidden">Action</th>
+            <th>Order Control No.</th>
+            <th>Status Code</th>
+            <th style="width:160px;">Start Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (ListDataKeihen == null || ListDataKeihen.Count == 0)
+        {
+            <tr>
+                <td colspan="4">No Data Found</td>
+            </tr>
+        }
+        else
+        {
+            int i = 1;
+            foreach (DayByDayExplosionInstructions data in ListDataKeihen)
+            {
+                <tr>
+                    <td class="text-center grid-checkbox-col hidden">
+                        <input name="chkRow" type="checkbox" class="grid-checkbox-body"
+                               data-receiveNo="@data.RECEIVE_NO" data-companyCd="@data.COMPANY_CD" />
+                        <span class="lbl"></span>
+                    </td>
+                    <td>@data.IMPORTER_CD.ToUpper()-@data.EXPORTER_CD.ToUpper()/@data.ORD_TYPE.ToUpper()/@data.PACK_MONTH/@data.CFC.ToUpper()</td>
+                    <td>@data.STATUS_CD</td>
+                    @*<td>@data.START_DATE</td>*@
+                    <td>
+                        <div class="input-group" id="MonthDatePicker">
+                            <input class="form-control month-picker mandatory txtYear" id="txtYear_@i" type="text" placeholder="YYYY/MM/DD" />
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </td>
+
+                </tr>
+                i++;
+            }
+        }
+    </tbody>
+</table>

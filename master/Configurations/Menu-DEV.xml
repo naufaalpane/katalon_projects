@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<menu>
+  <menu-item Id="menu-1" Enabled="True" Visible="True" Url="Home" Text="Dashboard" Description="Back to Home page" Glyph="home" >
+  </menu-item>
+
+  <menu-item Id="menu-master" Enabled="True" Visible="True" Url="#" Text="Master" Description="Menu Master" Glyph="desktop">
+    <menu-item Id="WA0AU107" Enabled="True" Visible="True" Url="DayByDayDeliveryPackingCoeficient" Text="WA0AU107" Description="Day by Day Delivery/Packing Coefficient" Glyph="file-text-o" />
+	<menu-item Id="WA0AU301" Enabled="True" Visible="True" Url="DayByDayProductionCoeficient" Text="WA0AU310" Description="Day By Day Production Coefisient" Glyph="file-text-o" />
+	<menu-item Id="WA0AU304" Enabled="True" Visible="True" Url="ProductionPlanCorrection" Text="WA0AU304" Description="Production Plan Correction" Glyph="file-text-o" />
+    <menu-item Id="WA0AUB03" Enabled="True" Visible="True" Url="DeliveryPackingPlanCreation" Text="WA0AUB03" Description="Delivery / Packing Plan Creation" Glyph="file-text-o" />
+    <menu-item Id="WA0AUC01" Enabled="True" Visible="True" Url="DeliveryPackingPartsNoM_PxP" Text="WA0AUC01" Description="Deliver/Packing Parts No. Master (PxP) Setting" Glyph="file-text-o" />
+    <menu-item Id="WA0AUC02" Enabled="True" Visible="True" Url="UnitProductionControlMasterSettings" Text="WA0AUC02" Description="Unit Production Control Master Setting" Glyph="file-text-o" />
+    <menu-item Id="WA0AUC04" Enabled="True" Visible="True" Url="MCapacityMasterSetUp" Text="WA0AUC04" Description="K / M Capacity Master Set Up" Glyph="file-text-o" />
+    <menu-item Id="WA0AUC06" Enabled="True" Visible="True" Url="StockLevelMasterSettings" Text="WA0AUC06" Description="Stock Level Master Settings" Glyph="file-text-o" />
+    <menu-item Id="WA0AUC07" Enabled="True" Visible="True" Url="DestinationMasterSettingsScreen" Text="WA0AUC07" Description="Destination Master Settings" Glyph="file-text-o" />
+	<menu-item Id="WA0AUC08" Enabled="True" Visible="True" Url="LineMasterSettingsScreen" Text="WA0AUC08" Description="Line Master Settings" Glyph="file-text-o" />
+	<menu-item Id="WA0AUC10" Enabled="True" Visible="True" Url="UnitProductionPlanHEIJUNKAMaster" Text="WA0AUC10" Description="Unit Production Plan HEIJUNKA Master" Glyph="file-text-o" />
+	<menu-item Id="WA0AUC11" Enabled="True" Visible="True" Url="HEIJUNKACodeNameMasterSettings" Text="WA0AUC11" Description="HEIJUNKA Code Name Master Settings" Glyph="file-text-o" />
+    <menu-item Id="WA0AUB09" Enabled="True" Visible="True" Url="DayByDayExplosionInstructions" Text="WA0AUB09" Description="Day By Day Explosion Instruction" Glyph="file-text-o" />
+
+  </menu-item>
+
+  <menu-item Id="menu-transacation" Enabled="True" Visible="True" Url="#" Text="Transaction" Description="Menu Transaction" Glyph="cog">
+    <menu-item Id="WA0AU101" Enabled="True" Visible="True" Url="OrderStatusListScreen" Text="WA0AU101" Description="Order Status List" Glyph="angle-right" />
+    <menu-item Id="WA0AU104" Enabled="True" Visible="True" Url="OrderUpdateScreen" Text="WA0AU104" Description="Oder Update" Glyph="angle-right" />
+	<menu-item Id="WA0AU306" Enabled="True" Visible="True" Url="ProductionPlanPrintInstructions" Text="WA0AU306" Description="Production Plan Print Instructions"  Glyph="angle-right" />
+	<menu-item Id="WA0AU310" Enabled="True" Visible="True" Url="ProductionPlanList" Text="WA0AU310" Description="Production Plan List"  Glyph="angle-right" />
+    <menu-item Id="WA0AUB03" Enabled="True" Visible="True" Url="DeliveryPackingPlanCreation" Text="WA0AUB03" Description="Delivery / Packing Plan Creation" Glyph="angle-right" />
+    <menu-item Id="WA0AUB09" Enabled="True" Visible="True" Url="DayByDayExplosionInstructions" Text="WA0AUB09" Description="Day By Day Explosion Instruction" Glyph="angle-right" />
+    <menu-item Id="WA0AUB05" Enabled="True" Visible="True" Url="KMProdPlanCreation" Text="WA0AUB05" Description="K/M. Prod Plan Creation" Glyph="angle-right" />
+    <menu-item Id="WA0AUE16" Enabled="True" Visible="True" Url="OrderVolumeDifferentListCreation" Text="WA0AUE16" Description="Order Volume Different List" Glyph="angle-right" />
+	<menu-item Id="WA0AUE12" Enabled="True" Visible="True" Url="OrderRecTentativeNQCInhouse" Text="WA0AUE12" Description="Order Rec Tentative NQC Inhouse" Glyph="angle-right" />
+  </menu-item>
+  <menu-item Id="menu-screen" Enabled="True" Visible="True" Url="#" Text="Screen" Description="Menu Screen" Glyph="desktop">
+
+  </menu-item>
+
+  <menu-item Id="menu-report" Enabled="True" Visible="True" Url="#" Text="Report" Description="Menu Report" Glyph="book">
+
+  </menu-item>
+</menu>

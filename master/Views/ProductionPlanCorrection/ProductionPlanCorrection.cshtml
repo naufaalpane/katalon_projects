@@ -1,0 +1,151 @@
+﻿@using System;
+@using Toyota.Common.Web.Platform;
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section HeadScript{
+}
+@Html.Partial("_SearchCriteria")
+
+<div id="gridTableCourse">
+    @Html.Partial("_GridView")
+</div>
+
+<style>
+    input[type='text'] {
+        font-size: 10px;
+    }
+</style>
+
+<!--UPLOAD AREA-->
+<div id="uploadDataFilePopup" class="modal fade" role="dialog" aria-hidden="true" aria-labelledby="basicModal">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="popup-title">Upload Area</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- Dropzone AREA-->
+                        <div id="actions" class="row">
+                            <div class="col-md-12 fileinput-button mb-2">
+                                <div class="row justify-content-center" style="padding: 5px;">
+                                    <i class="fa fa-cloud-upload-alt fa-5x" style="opacity: 0.3"></i>
+                                </div>
+                                <div class="row justify-content-center" style="padding: 5px;">
+                                    <span style="color: #999; font-size: 20px;"><i class="fa fa-caret-right blue" style="opacity: 0.7"></i> Drop file to upload <small>(or click)</small> </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="table table-striped" id="previews">
+                                <div id="template" class="file-row">
+                                    <div>
+                                        <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width:0%;" data-dz-uploadprogress><span class="progress-text"></span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Dropzone AREA-->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <div class="text-left">
+
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <div class="text-right">
+                        <button type="button" class="btn btn-info" id="linkDownloadTemplate">Download Template </button>
+                        <button type="button" id="btnUploadPopupClose" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--UPLOAD AREA-->
+
+@section BodyScript{
+
+
+    <script>
+        $(document).ready(function () {
+
+            $("._datepicker").datepicker({
+                format: 'yyyymm',
+                autoclose: true,
+                minViewMode: 'months',
+                container:'#MonthDatePicker'
+            });
+
+            fixedHeader(); //If the table header is more than 1, use this function to freeze the header
+
+            var previewNode = document.querySelector("#template");
+            previewNode.id = "";
+            var previewTemplate = previewNode.parentNode.innerHTML;
+            previewNode.parentNode.removeChild(previewNode);
+
+            var myDropzone = new Dropzone("#actions", {
+                url: "/target-url",
+                maxFiles: 1,
+                previewTemplate: previewTemplate,
+                autoQueue: true,
+                clickable: ".fileinput-button",
+                uploadprogress: function (file, progress, bytesSent) {
+                    if (file.previewElement) {
+                        var progressElement = file.previewElement.querySelector("[data-dz-uploadprogress]");
+                        progressElement.style.width = progress + "%";
+                        progressElement.querySelector(".progress-text").textContent = Math.round(progress) + "%";
+                    }
+                }
+            });
+
+            $(document).on("click", "#btnUpload", function () {
+                $("#uploadDataFilePopup").modal();
+            });
+        });
+
+        function doSearch(page) {
+            $.ajax({
+                type: '',
+                url: '',
+                contentType: '',
+                data: '',
+                success: function (data) {
+                    fixedHeader();
+                },
+                error: function (data) {
+
+                }
+
+            });
+        }
+
+        function onDownload() {
+        //$.messagepanel.show("Download Success");
+        $.ajax({
+                type: "POST",
+                url: "@Html.Toyota().Page.GetActionUrl("download")",
+                async: false,
+                data: {
+
+                },
+                success: function (data) {
+                    $.messagepanel.showContent(data);
+                },
+                error: function (data) {
+                    $.messagepanel.show("Error");
+                }
+            });
+        }
+    </script>
+}

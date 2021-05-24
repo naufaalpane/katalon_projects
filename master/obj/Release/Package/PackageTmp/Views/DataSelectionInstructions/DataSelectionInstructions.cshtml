@@ -1,0 +1,67 @@
+﻿@using System;
+@using Toyota.Common.Web.Platform;
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Partial("_SearchCriteria")
+
+@section HeadScript{
+    <style type="text/css">
+        .modal-icon {
+            height: 35px;
+        }
+
+        .mandatory {
+            color: red !important;
+        }
+    </style>
+}
+
+
+@section BodyScript {
+    
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+        });
+
+        var DownloadMonthOrDate = "";
+
+       var PROCESSMONTHORDATE = "";
+        function onDownload() {
+
+            PROCESSMONTHORDATE = $("input[name='radiosC']:checked").val();
+            if (PROCESSMONTHORDATE === undefined) {
+                // showErrorMesgGrowl("Please choose one option Compare");
+                $.messagepanel.show("Please Choose Data");
+
+                return;
+            }
+            //$.messagepanel.show("Download Success");
+            $.ajax({
+                  type: "POST",
+                  url: "@Html.Toyota().Page.GetActionUrl("download")",
+                  async: false,
+                  data: {
+
+                  },
+                  success: function (data) {
+                      $.messagepanel.showContent(data);
+                  },
+                  error: function (data) {
+                      $.messagepanel.show("Error");
+                  }
+            });
+
+        }
+
+
+
+
+    </script>
+
+}

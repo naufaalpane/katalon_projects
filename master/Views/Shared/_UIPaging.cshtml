@@ -1,0 +1,140 @@
+﻿@using GPPSU.Models.Common
+@model GPPSU.Models.Common.PagingModel
+@{
+    string functionName = ViewData["FUNC"] != null ? ViewData["FUNC"].ToString() : "doSearch";
+    int minpage = @Model.PositionPage - 2;
+    int maxpage = @Model.PositionPage + 2;
+
+
+}
+
+@if (@Model.PositionPage == @Model.First || @Model.CountData == 0)
+{
+    <style>
+        #pgFirst@(Model.DataName) {
+            pointer-events: none;
+            cursor: default;
+            color: lightgray;
+        }
+
+        #pgPrev@(Model.DataName) {
+            pointer-events: none;
+            cursor: default;
+            color: lightgray;
+        }
+    </style>
+}
+@if (@Model.PositionPage == @Model.Last)
+{
+    <style>
+        #pgNext@(Model.DataName) {
+            pointer-events: none;
+            cursor: default;
+            color: lightgray;
+        }
+
+        #pgLast@(Model.DataName) {
+            pointer-events: none;
+            cursor: default;
+            color: lightgray;
+        }
+    </style>
+}
+
+@if (@Model.CountData == 0)
+{
+    <style>
+        #pgFirst@(Model.DataName) {
+            pointer-events: none;
+            cursor: default;
+            color: lightgray;
+        }
+
+        #pgPrev@(Model.DataName) {
+            pointer-events: none;
+            cursor: default;
+            color: lightgray;
+        }
+
+        #pgNext@(Model.DataName) {
+            pointer-events: none;
+            cursor: default;
+            color: lightgray;
+        }
+
+        #pgLast@(Model.DataName) {
+            pointer-events: none;
+            cursor: default;
+            color: lightgray;
+        }
+    </style>
+}
+
+<div class="row">
+
+    <div class="col-12 col-sm-10 pr-0 pl-0" style="height: 30px;">
+        <nav aria-label="...">
+            <ul class="pagination">
+
+                <li class="page-item disabled">
+                    <span class="page-link _pagination-label">Showing Page @Model.PositionPage of @Model.CountPage (@Model.CountData row(s))</span>
+                </li>
+                <li class="page-item"><a class="page-link firstPageBtn" href="javascript: @(functionName)@(Model.DataName)(@Model.First)" id="pgFirst@(Model.DataName)">First</a></li>
+                <li class="page-item"><a class="page-link prevPageBtn" href="javascript: @(functionName)@(Model.DataName)(@Model.Prev)" id="pgPrev@(Model.DataName)">Prev</a></li>
+                @for (int k = 1; k <= @Model.CountPage; k++)
+                {
+                    if ((k >= minpage) && (k <= maxpage))
+                    {
+                        if (@k == @Model.PositionPage)
+                        {
+                            <li class="page-item active">
+                                <a class="page-link pageItemBtn" href="javascript:  @(functionName)@(Model.DataName)(@k)">@k</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item">
+                                <a class="page-link pageItemBtn" href="javascript:  @(functionName)@(Model.DataName)(@k)">@k</a>
+                            </li>
+                        }
+                    }
+                }
+
+                <li class="page-item"><a class="page-link nextPageBtn" href="javascript: @(functionName)@(Model.DataName)(@Model.Next)" id="pgNext@(Model.DataName)">Next</a></li>
+                <li class="page-item"><a class="page-link lastPageBtn" href="javascript: @(functionName)@(Model.DataName)(@Model.Last)" id="pgLast@(Model.DataName)">Last</a></li>
+                <li class="page-item">
+                    <span class="page-link _pagination-goto" style="padding-top: 1px;">
+                        <input oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" type="number" class="_number-only gotoPage" id="@(Model.DataName)gotovalue" maxlength="4" />
+                    </span>
+                </li>
+                @*<li class="page-item">
+                        <span class="page-link _pagination-goto">
+                            <input data-inputmask="'mask': '9', 'repeat': 10, 'greedy' : false" id="@(Model.DataName)gotovalue" maxlength="4"/>
+                        </span>
+                    </li>*@
+                <li class="page-item">
+                    <span class="page-link _pagination-goto" style="padding-top: 1px;">
+                        <button type="button" class="_btn-go btn-std goBtn" onclick="@(functionName)@(Model.DataName)($('#@(Model.DataName)gotovalue').val());">Go</button>
+                    </span>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div class="col-12 col-sm-2 text-right noofrows p-0">
+
+        <span>Size</span>&nbsp;
+        <select class="input-xs selectPage page-size@(Model.DataName)" id="cbodisplay@(Model.DataName)" onchange="@(functionName)@(Model.DataName)(1)">
+            @for (int i = 0; i < PagingModel.RECORD_PER_PAGES.Length; i++)
+            {
+                <option>@PagingModel.RECORD_PER_PAGES[i]</option>
+            }
+        </select>
+
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function (e) {
+            $("#cbodisplay@(Model.DataName)").val(@(Model.DataPerPage));
+        });
+    </script>
+</div>
+

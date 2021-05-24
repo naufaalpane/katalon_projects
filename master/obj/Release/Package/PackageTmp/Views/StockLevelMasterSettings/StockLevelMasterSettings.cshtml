@@ -1,0 +1,264 @@
+﻿@using System;
+@using Toyota.Common.Web.Platform;
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Partial("_SearchCriteria")
+
+@section HeadScript{
+
+}
+
+<div id="gridTableCourse">
+    @Html.Partial("_GridView")
+</div>
+
+<!-- Upload AREA-->
+<div id="uploadDataFilePopup" class="modal fade" role="dialog" aria-hidden="true" aria-labelledby="basicModal">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="popup-title">Upload Area</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- Dropzone AREA-->
+                        <div id="actions" class="row">
+                            <div class="col-md-12 fileinput-button mb-2">
+                                <div class="row justify-content-center">
+                                    <i class="fa fa-cloud-upload-alt fa-5x" style="opacity: 0.3"></i>
+                                </div>
+                                <div class="row justify-content-center pt-2">
+                                    <span style="color: #999; font-size: 20px;"><i class="fa fa-caret-right blue" style="opacity: 0.7"></i> Drop files to upload <small>(or click)</small> </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="table table-striped" id="previews">
+                                <div id="template" class="file-row">
+                                    <div>
+                                        <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width:0%;" data-dz-uploadprogress><span class="progress-text"></span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Dropzone AREA-->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <div class="text-left">
+
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <div class="text-right">
+                        <button type="button" class="btn btn-info" id="linkDownloadTemplate">Download Template </button>
+                        <button type="button" id="btnUploadPopupClose" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Upload End-->
+
+<script>
+
+    var initialeq4 = `
+            5P2P8-80003-00
+        `;
+
+    var modifiedPartsNo = `
+            <input type="text" id="partsno1" name="partsno1" maxlength="5" style="width:45px"/>
+            <strong><b>-</b></strong>
+            <input type="text" id="partsno2" name="partsno2" maxlength="5" style="width:45px"/>
+            <strong><b>-</b></strong>
+            <input type="text" id="partsno3" name="partsno3" maxlength="2" style="width:20px"/>
+        `;
+
+    var initialeq11 = `
+            2003/11/21
+        `;
+
+    var modifiedDatePickerFrom = ` 
+            <div class="input-group">
+                <input class="form-control _datepicker" id="sc_REQ_DT" name="sc_REQ_DT" type="text" data-date-format="dd.mm.yyyy"/>
+                <div class="input-group-append">
+                    <span class="input-group-text">
+                        <i class="far fa-calendar-alt"></i>
+                    </span>
+                </div>
+            </div>
+        `;
+    var modifiedDatePickerTo = ` 
+            <div class="input-group">
+                <input class="form-control _datepicker" id="sc_REQ_DT2" name="sc_REQ_DT2" type="text" data-date-format="dd.mm.yyyy"/>
+                <div class="input-group-append">
+                    <span class="input-group-text">
+                        <i class="far fa-calendar-alt"></i>
+                    </span>
+                </div>
+            </div>
+        `;
+
+    var trBaseColor;
+    var dataEditCopy = [];
+    $(document).ready(function () {
+
+
+        var previewNode = document.querySelector("#template");
+        previewNode.id = "";
+        var previewTemplate = previewNode.parentNode.innerHTML;
+        previewNode.parentNode.removeChild(previewNode);
+
+        var myDropzone = new Dropzone("#actions", {
+            url: "/target-url",
+            maxFiles: 1,
+            previewTemplate: previewTemplate,
+            autoQueue: true,
+            clickable: ".fileinput-button",
+            uploadprogress: function (file, progress, bytesSent) {
+                if (file.previewElement) {
+                    var progressElement = file.previewElement.querySelector("[data-dz-uploadprogress]");
+                    progressElement.style.width = progress + "%";
+                    progressElement.querySelector(".progress-text").textContent = Math.round(progress) + "%";
+                }
+            }
+        });
+
+
+        $("#insertLine").on("click", function () {
+            addTheFirstRow(this);
+            dataEditCopy.length = 0;
+
+            $.crud.doInitDatePickerSingle($('#sc_REQ_DT'));
+            $.crud.doInitDatePickerSingle($('#sc_REQ_DT2'));
+        });
+
+        $(document).on("click", "#cancelSubmit", function () {
+            var tr = $(this).closest("tr");
+            $("#tblDetail tbody tr").css("opacity", "1");
+            $(".initialBtn").prop("disabled", false);
+            if (tr.attr("class") == "editLine") {
+                tr.each(function (i, e) {
+                    $(e).removeClass($(e).attr("class"));
+                    $(e).css("background-color", trBaseColor);
+                    var i = $(e).children('td');
+                    for (var x = 2; x <= i.length; x++) {
+                        var val = i.eq(x).children().val();
+                        i.eq(x).html(val);
+                    }
+                    i.eq(1).html(initialButton);
+                    i.eq(4).html(initialeq4);
+                    i.eq(11).html(initialeq11);
+                    i.eq(12).html(initialeq11);
+                });
+            } else {
+                $(this).closest("tr").remove();
+            }
+        });
+
+        $(document).on("click", "#editLine", function () {
+            dataEditCopy.length = 0;
+            var tr = initializeEditCopyLine(this);
+            tr.addClass($(this).attr("id"));
+            loopThrougTableRow(tr, $(this).attr('id'));
+
+            trBaseColor = getComputedStyle(document.querySelector("." + $(this).attr('id') + "")).backgroundColor;
+            tr.css("background-color", "#E9E9E9");
+
+            $.crud.doInitDatePickerSingle($('#sc_REQ_DT'));
+            $('#sc_REQ_DT').val('11.11.2003');
+            $.crud.doInitDatePickerSingle($('#sc_REQ_DT2'));
+            $('#sc_REQ_DT2').val('11.11.2003');
+
+            $('#partsno1').val('5P2P8');
+            $('#partsno2').val('80003');
+            $('#partsno3').val('00');
+        });
+
+        $(document).on("click", "#copyLine", function () {
+            dataEditCopy.length = 0;
+            addTheFirstRow(this);
+
+            $.crud.doInitDatePickerSingle($('#sc_REQ_DT'));
+            $('#sc_REQ_DT').val('11.11.2003');
+            $.crud.doInitDatePickerSingle($('#sc_REQ_DT2'));
+            $('#sc_REQ_DT2').val('11.11.2003');
+
+            $('#partsno1').val('5P2P8');
+            $('#partsno2').val('80003');
+            $('#partsno3').val('00');
+        });
+
+        $(document).on("click", "#btnUpload", function () {
+            $("#uploadDataFilePopup").modal();
+        });
+    })
+
+    function addTheFirstRow(e) {
+        btnAddRow_onClick(e);
+        $(".initialBtn").prop("disabled", true);
+        $("input[type=checkbox]").prop("checked", false);
+    }
+
+    function btnAddRow_onClick(classAttr) {
+        var $class = $(classAttr).attr('id');
+        var tr = $class == 'insertLine' ? $("#tblDetail tbody tr:first") : $(classAttr).closest("tr");
+        $(".tableScroll").scrollTop(0);
+        tr.clone().addClass($class).css("background-color", "#E9E9E9").prependTo("#tblDetail tbody");
+
+        loopThrougTableRow($("#tblDetail tbody tr." + $class + ""), $class);
+    }
+
+    function initializeEditCopyLine(e) {
+        var tr = $(e).closest("tr");
+        $("input[type=checkbox]").prop("checked", false);
+        $(".initialBtn").prop("disabled", true);
+
+        return tr;
+    }
+
+    function loopThrougTableRow(tr, classAttr) {
+        tr.each(function (i, e) {
+            var i = $(e).children('td');
+            for (var x = 2; x < i.length; x++) {
+                var val = classAttr == "insertLine" ? "" : i.eq(x).text();
+                i.eq(x).html("<input type ='text' class='form-control " + x + " text-center' value='" + val + "'/>");
+                dataEditCopy.push(val);
+            }
+            i.eq(1).html(modifiedButton);
+            i.eq(4).html(modifiedPartsNo);
+            i.eq(11).html(modifiedDatePickerFrom);
+            i.eq(12).html(modifiedDatePickerTo);
+        });
+        $("#tblDetail tbody tr:not(." + tr.attr("class") + ")").css("opacity", "0.3");
+    }
+
+    function onDownload() {
+        //$.messagepanel.show("Download Success");
+        $.ajax({
+            type: "POST",
+            url: "@Html.Toyota().Page.GetActionUrl("download")",
+            async: false,
+            data: {
+
+            },
+            success: function (data) {
+                $.messagepanel.showContent(data);
+            },
+            error: function (data) {
+                $.messagepanel.show("Error");
+            }
+        });
+    }
+
+</script>

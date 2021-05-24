@@ -1,0 +1,100 @@
+﻿@using System;
+@using Toyota.Common.Web.Platform;
+@using GPPSU.Controllers;
+@using GPPSU.Commons.Constants;
+
+@using GPPSU.Models.Common;
+@{
+    PagingModel page = ViewData["Paging"] != null ? (PagingModel)ViewData["Paging"] : new PagingModel(0, 1, 10);
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#checkall").click(function () {
+            $(".grid-checkbox").prop("checked", $("#checkall").is(":checked"));
+        });
+
+        $(".grid-checkbox").click(function () {
+            $("#checkall").prop("checked", $('.grid-checkbox:not(#checkall)').not(':checked').length == 0);
+        });
+    });
+</script>
+
+<div class="col-md-12">
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <button id="btnUpload" type="button" class="btn btn-info">Upload</button>
+            <button type="button" id="btn-download" class="btn btn-primary" onclick="onDownload()">Download</button>
+        </div>
+        <div class="col-md-9 text-right">
+            <button class="btn btn-md btn-primary initialBtn" id="insertLine">Add</button>
+            <button class="btn btn-danger initialBtn" id="btnDelDtl">Delete</button>
+        </div>
+    </div>
+    <div class="row mb-2">
+        <div class="col-md-12 pr-0 pb-0">
+            <div class="table-responsive customTableBorder">
+                <div class="tableScroll" id="tScrollHead">
+                    <table class="customTable text-center" id="tblDetail" width="100%">
+                        <thead>
+                            <tr>
+                                <th class="pl-3 pr-3">
+                                    <input class="grid-checkboxDetail ace initialBtn" type="checkbox" id="checkall" />
+                                    <span class="lbl" title="Choose"></span>
+                                </th>
+                                <th>Action</th>
+                                <th>HEIJUNKA Code</th>
+                                <th>HEIJUNKA Name</th>
+                                <th>Created By</th>
+                                <th>Created Date</th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyDetail">
+                            @for (int i = 1; i <= 100; i++)
+                            {
+                            <tr>
+                                <td class="text-center grid-checkbox-col">
+                                    <input name="chkRow" type="checkbox" class="grid-checkbox ace grid-checkbox-body initialBtn" />
+                                    <span class="lbl"></span>
+                                </td>
+                                <td>
+                                    <button class="btn initialBtn btn-md btn-outline-primary pt-0 pb-0 pl-1 pr-1" title="Edit" id="editLine">
+                                        <small><i class="fa fa-pen"></i></small>
+                                    </button>
+                                    <button class="btn initialBtn btn-md btn-outline-info pt-0 pb-0 pl-1 pr-1" title="Copy Line" id="copyLine">
+                                        <small><i class="fa fa-copy"></i></small>
+                                    </button>
+                                    <button class="btn initialBtn btn-md btn-outline-warning pt-0 pb-0 pl-1 pr-1" title="Delete">
+                                        <small><i class="fa fa-trash"></i></small>
+                                    </button>
+                                </td>
+                                <td>HEIJUNKA CD-@i </td>
+                                <td>HEIJUNKA NAME @i</td>
+                                <td>Admin </td>
+                                <td>dd.mm.yyyy</td>
+
+
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row text-right">
+        <div class="col-md-12">
+            <div class="form-group-sm">
+                @Html.Partial("_UIPaging", page)
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $("#tScrollBody").scroll(function () {
+        $("#tScrollHead").scrollLeft($("#tScrollBody").scrollLeft());
+    });
+</script>

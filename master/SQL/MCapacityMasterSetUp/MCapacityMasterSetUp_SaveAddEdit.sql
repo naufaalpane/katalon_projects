@@ -1,0 +1,12 @@
+﻿EXEC @RetVal = dbo.SP_M_Capacity_Master_Setup_SaveAddEdit
+@@PROCESS_CD	= @PROCESS_CD,
+@@LINE_CD		= @LINE_CD,
+@@SEQ_NO		= @SEQ_NO,
+@@HEIJUNKA_CD	= @HEIJUNKA_CD,
+@@CAPACITY		= @CAPACITY,
+@@TC_FROM		= @TC_FROM, 
+@@TC_TO			= @TC_TO,
+@@userId		= @userid,
+@@companyCode	= @companyCode,
+@@screenMode	= @screenMode,
+@@ErrMesgs		= @ErrMesgs output 

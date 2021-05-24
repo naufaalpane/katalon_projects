@@ -1,0 +1,5 @@
+@font-face {
+	 font-family:league spartan bold;
+	 font-style:normal;font-weight:700;
+	 src:local('League Spartan Bold'),local('LeagueSpartan-Bold'),url(leaguespartan-bold.woff) format('woff'), url(leaguespartan-bold.woff2) format('woff2'), url(leaguespartan-bold.ttf) format('truetype')
+}

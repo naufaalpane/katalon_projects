@@ -1,0 +1,10 @@
+﻿exec		@RetVal					= [sp_OrderUpdateScreen_Prev]
+			@@v_companyCode			= @companyCode,
+			@@v_imp					= @importerCode,
+            @@v_exp					= @exporterCode,
+            @@v_odt					= @orderType,
+            @@v_pack_month			= @packMonth,
+			@@v_cfc					= @cfc,
+			@@v_sts_cd				= @statusCode,
+			@@v_userId				= @UserId,
+			@@v_ErrMesg				= @ErrMesg   output 

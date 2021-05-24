@@ -1,0 +1,14 @@
+﻿exec @RetVal = dbo.sp_StockLevelMasterSettingsScreen_Update
+	@@COMPANY_CD = @companyCode,
+	@@LINE_CD = @lineCd,
+	@@CFC =@cfc,
+	@@PART_NO = @partNo,
+	@@STATUS_CD = @statusCd,
+	@@EXPORT_CD = @exportCd, 
+	@@MIN_STOCK = @minStock,
+	@@MAX_STOCK = @maxStock,
+	@@TC_FROM = @tcFrom,
+	@@TC_TO = @tcTo,
+	@@SEQ_NO = @seqNo,
+	@@USER_ID = @userId,
+	@@ErrMesg = @ErrMesg output

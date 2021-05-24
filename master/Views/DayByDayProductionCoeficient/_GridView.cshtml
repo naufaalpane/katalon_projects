@@ -1,0 +1,240 @@
+﻿@using GPPSU.Models.Common;
+@using GPPSU.Models.DayByDayProductionCoeficient;
+@{
+    PagingModel page = ViewData["Paging"] != null ? (PagingModel)ViewData["Paging"] : new PagingModel(0, 1, 10);
+
+    List<DayByDayProductionCoeficient> listData = (List<DayByDayProductionCoeficient>)ViewData["CoefGroupData"];
+
+    List<DailyHeaderList> dynamicDaily = (List<DailyHeaderList>)ViewData["dynamicDailyHeader"];
+}
+
+<script type="text/javascript">
+    var lengthDay;
+    $(document).ready(function () {
+        $("#checkall").click(function () {
+            $(".grid-checkbox").prop("checked", $("#checkall").is(":checked"));
+        });
+
+        $(".grid-checkbox").click(function () {
+            $("#checkall").prop("checked", $('.grid-checkbox:not(#checkall)').not(':checked').length == 0);
+        });
+
+    });
+
+</script>
+
+<div class="customContainer" style="margin-top: -10px;">
+    <div class="col-md-12">
+        <div class="card customShadow">
+            <div class="preload">
+                @*<div class="spinnerDisplay"></div>*@
+            </div>
+            <div class="card-body sk-loading">
+                <div class="row mb-3">
+                    <div class="col-md-6 col-6 col-sm-6">
+                        <button id="btnUpload" type="button" class="btn btn-info">Upload</button>
+                        <button type="button" id="btn-download" class="btn btn-primary" onclick="onDownload()">Download</button>
+                    </div>
+                    <div class="col-md-6 col-6 col-sm-6 text-right">
+                        <button class="btn btn-md btn-primary initialBtn" id="insertLine">Add</button>
+                        <button type="button" id="btnDelDtl" class="btn btn-danger initialBtn" tabindex="9">Delete</button>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-12">
+                        <div class="table-responsive customTableBorder">
+                            <div class="tableScroll" style="max-height: 355px !important;">
+                                <table class="customTable text-center" id="tblDetail" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th rowspan="3" class="p-2 stickyColumn">
+                                                <input class="grid-checkboxDetail ace initialBtn" type="checkbox" id="checkall" />
+                                                <span class="lbl" title="Choose"></span>
+                                            </th>
+                                            <th rowspan="3" class="stickyColumn" style="padding: 0px 25px;">Action</th>
+                                            <th rowspan="3" class="stickyColumn">Line Code</th>
+                                            <th rowspan="3" class="stickyColumn">No. Of Working Days</th>
+                                            <th rowspan="3" class="stickyColumn">Change No. Of Working Days</th>
+
+                                            @if (dynamicDaily != null)
+                                            {
+                                                <th colspan="@dynamicDaily.Count">@dynamicDaily[0].Month</th>
+                                                <tr>
+                                                    @for (int k = 0; k < dynamicDaily.Count; k++)
+                                                    {
+                                                        <th>@dynamicDaily[k].Day</th>
+                                                    }
+                                                </tr>
+                                                <tr>
+                                                    @for (int j = 0; j < dynamicDaily.Count; j++)
+                                                    {
+                                                    <th style="padding: 3px 10px;">@dynamicDaily[j].WeekDay</th>
+                                                    }
+                                                </tr>
+                                            }
+                                            else
+                                            {
+                                                <th colspan="30">Month</th>
+                                            <tr>
+                                                @for (int i = 1; i <= 30; i++)
+                                                {
+                                                    <th style="width:100px;">
+                                                        @i
+                                                    </th>
+                                                }
+                                            </tr>
+                                            <tr>
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    if (i == 5)
+                                                    {
+                                                        <th>Mon</th>
+                                                        <th>Tue</th>
+                                                    }
+                                                    else
+                                                    {
+                                                        <th>Mon</th>
+                                                        <th>Tue</th>
+                                                        <th>Wed</th>
+                                                        <th>Thu</th>
+                                                        <th>Fri</th>
+                                                        <th>Sat</th>
+                                                        <th>Sun</th>
+                                                    }
+                                                }
+                                            </tr>
+                                        }
+                                        </thead>
+                                        <tbody id="dataTable">
+                                            @if (listData != null)
+                                            {
+                                                foreach (DayByDayProductionCoeficient data in listData)
+                                                {
+                                                    <tr align="center">
+                                                        <td class="text-center grid-checkbox-col stickyColumn">
+                                                            <input name="chkRow" type="checkbox" class="grid-checkbox-body"
+                                                                   data-companyCd="@data.COMPANY_CD" data-processCd="@data.PROCESS_CD" data-lineCd="@data.LINE_CD" data-yymm="@data.YYMM" />
+                                                            <span class="lbl"></span>
+                                                        </td>
+                                                        <td class="stickyColumn">
+                                                            <button class="btn initialBtn btn-md btn-outline-primary pt-0 pb-0 pl-1 pr-1" title="Edit" id="editLine">
+                                                                <small><i class="fa fa-pen"></i></small>
+                                                            </button>
+                                                            <button class="btn initialBtn btn-md btn-outline-info pt-0 pb-0 pl-1 pr-1" title="Copy Line" id="copyLine">
+                                                                <small><i class="fa fa-copy"></i></small>
+                                                            </button>
+                                                            <button class="btn initialBtn btn-md btn-outline-warning pt-0 pb-0 pl-1 pr-1" title="Delete"
+                                                                    onclick="onDeleteSingle('@data.PROCESS_CD', '@data.COMPANY_CD', '@data.LINE_CD', '@data.YYMM')">
+                                                                <small><i class="fa fa-trash"></i></small>
+                                                            </button>
+                                                        </td>
+                                                        <td class="stickyColumn text-center">@data.LINE_CD.ToString().Replace(",", ".")</td>
+                                                        <td class="stickyColumn">@data.WORK_DAY_SYSTEM.ToString().Replace(",", ".")</td>
+                                                        <td class="stickyColumn">@data.WORK_DAY_HAND.ToString().Replace(",", ".")</td>
+                                                        @*@for (int i = 0; i < data.DAILYRATIOLIST.Count; i++)
+                                                        {
+                                                            <td>@data.DAILYRATIOLIST[i].VALUE</td>
+                                                        }*@
+                                                        <td>@data.DAY_ALOC_RATIO_01.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_02.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_03.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_04.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_05.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_06.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_07.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_08.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_09.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_10.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_11.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_12.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_13.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_14.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_15.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_16.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_17.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_18.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_19.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_20.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_21.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_22.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_23.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_24.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_25.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_26.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_27.ToString().Replace(",", ".")</td>
+                                                        <td>@data.DAY_ALOC_RATIO_28.ToString().Replace(",", ".")</td>
+
+                                                        @if (dynamicDaily.Count > 28)
+                                                        { 
+                                                            <td>@data.DAY_ALOC_RATIO_29.ToString().Replace(",", ".")</td>
+                                                        }
+                                                        @if (dynamicDaily.Count > 29)
+                                                        { 
+                                                            <td>@data.DAY_ALOC_RATIO_30.ToString().Replace(",", ".")</td>
+                                                        }
+                                                        @if (dynamicDaily.Count > 30)
+                                                        { 
+                                                            <td>@data.DAY_ALOC_RATIO_31.ToString().Replace(",", ".")</td>
+                                                        }
+                                                    </tr>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if(dynamicDaily != null)
+                                                {
+                                                    int j; 
+                                                    <tr id="tblHidden" align="center" style="display:none;">
+                                                        <td class="text-center grid-checkbox-col stickyColumn">
+                                                            <input name="chkRow" type="checkbox" class="grid-checkbox-body" />
+                                                            <span class="lbl"></span>
+                                                        </td>
+                                                        <td class="stickyColumn">
+                                                            <button class="btn initialBtn btn-md btn-outline-primary pt-0 pb-0 pl-1 pr-1" title="Edit" id="editLine">
+                                                                <small><i class="fa fa-pen"></i></small>
+                                                            </button>
+                                                            <button class="btn initialBtn btn-md btn-outline-info pt-0 pb-0 pl-1 pr-1" title="Copy Line" id="copyLine">
+                                                                <small><i class="fa fa-copy"></i></small>
+                                                            </button>
+                                                            <button class="btn initialBtn btn-md btn-outline-warning pt-0 pb-0 pl-1 pr-1" title="Delete">
+                                                                <small><i class="fa fa-trash"></i></small>
+                                                            </button>
+                                                        </td>
+                                                        <td class="stickyColumn text-center"></td>
+                                                        <td class="stickyColumn"></td>
+                                                        <td class="stickyColumn"></td>
+                                                        @for (j = 5; j < dynamicDaily.Count + 5; j++)
+                                                        {
+                                                            <td id="td_@j">@j</td>
+                                                        }
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan= "@j"> No Data Found</td>
+                                                     </tr> 
+                                                }
+                                                else
+                                                {
+                                                    <tr>
+                                                        <td colspan="35"> No Data Found</td>
+                                                    </tr>  
+                                                }
+                                                
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row text-right">
+                        <div class="col-md-12">
+                            <div class="form-group-sm">
+                                @Html.Partial("_UIPaging", page)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>

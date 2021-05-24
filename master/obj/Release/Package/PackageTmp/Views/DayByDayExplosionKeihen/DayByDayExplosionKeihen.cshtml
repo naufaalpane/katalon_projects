@@ -1,0 +1,16 @@
+﻿@using System;
+@using Toyota.Common.Web.Platform;
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section HeadScript{
+
+}
+
+@Html.Partial("_SearchCriteria")
+
+<div id="gridTableCourse">
+    @Html.Partial("_GridView")
+</div>

@@ -1,0 +1,58 @@
+﻿@using System;
+@using Toyota.Common.Web.Platform;
+@using GPPSU.Commons.Models;
+@using GPPSU.Controllers;
+@using GPPSU.Commons.Constants;
+
+@{
+
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#checkall").click(function () {
+            $(".grid-checkbox").prop("checked", $("#checkall").is(":checked"));
+        });
+
+        $(".grid-checkbox").click(function () {
+            $("#checkall").prop("checked", $('.grid-checkbox:not(#checkall)').not(':checked').length == 0);
+        });
+    });
+</script>
+
+<div class="table-responsive" style="margin-bottom: 10px; border-radius: 7px 7px 0px 0px;">
+    <div class="tableScroll">
+        <table class="customTable text-center" width="100%">
+            <thead>
+                <tr>
+                    <th class="grid-checkbox-col" style="width: 100px;">
+                        <input class="grid-checkboxDetail ace initialBtn" type="checkbox" id="checkall" />
+                        <span class="lbl" title="Choose"></span>
+                    </th>
+                    <th>Car Family Code</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 1; i <= 50; i++)
+                {
+                    <tr>
+                        <td class="text-center grid-checkbox-col">
+                            <input name="chkRow" type="checkbox" class="grid-checkbox ace grid-checkbox-body initialBtn" />
+                            <span class="lbl"></span>
+                        </td>
+                        <td>ABCDE</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6 p-0">
+        <button type="button" id="btn-Request" class="btn btn-primary" onclick="onRequest()">Request</button>
+    </div>
+    <div class="col-md-6 p-0 text-right">
+        <button type="button" id="btn-Receive" class="btn btn-primary" onclick="onReceive()">Receive</button>
+    </div>
+</div>
+
+

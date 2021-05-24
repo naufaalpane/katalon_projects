@@ -1,0 +1,101 @@
+﻿<script type="text/javascript">
+    $(document).ready(function () {
+        $("#checkall").click(function () {
+            $(".grid-checkbox").prop("checked", $("#checkall").is(":checked"));
+        });
+
+        $(".grid-checkbox").click(function () {
+            $("#checkall").prop("checked", $('.grid-checkbox:not(#checkall)').not(':checked').length == 0);
+        });
+    });
+</script>
+<div class="row customContainer">
+    <div class="col-md-6">
+        <div class="card customShadow">
+            <div class="card-body">
+                <fieldset>
+                    <legend><small> <input type="radio" name="choice" checked="checked" id="monthlyRadio" value="M"  onchange="choice('Monthly')" /> <label for="monthlyRadio" style="margin: 0px;">Monthly</label></small></legend>
+                    <div class="row ml-1">
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-12 pl-0">
+                                    <div class="form-group">
+                                        <!--<div class="input-group" id="MonthDatePicker">
+                                            <label class="font-weight-bolder">Year Month : </label>-->
+                                            @*<input class="form-control ml-2 col-md-5" id="txtYear" type="text" data-name="txtYear" placeholder="YYYYMM" />*@
+                                            <!--<input class="form-control ml-2 col-md-5 " id="txtYear" type="text" />
+                                            <div class="input-group-append" style="height: 25px;">
+                                                <span class="input-group-text">
+                                                    <i class="far fa-calendar-alt"></i>
+                                                </span>
+                                            </div>
+                                        </div>-->
+                                        <div class="input-group" id="MonthDatePicker">
+                                            <label class="font-weight-bolder"><span style="color: red;">*</span> Year Month : </label>
+                                            <input class="form-control month-picker col-md-4 ml-2" id="txtYear" type="text" data-date-format="yyyymm" data-name="txtYear" placeholder="YYYYMM"/>
+                                            <div class="input-group-append" style="margin-bottom: 1px;">
+                                                <span class="input-group-text">
+                                                    <i class="far fa-calendar-alt"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row text-right">
+                                <div class="col-md-12">
+                                    <div class="form-group-sm">
+                                        <button class="btn btn-md btn-default" id="btnClear">Clear</button>
+                                        <button class="btn btn-md btn-primary" id="btnSearchMonthly" onclick="javascript: doSearch()">Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="mt-2 row justify-content-center">
+                        <div class="table-responsive" style="margin-bottom: 10px; border-radius: 7px 7px 0px 0px;">
+                            <div class="tableScroll" id="tabelMonthly" style="min-height: 380px !important">
+                                @Html.Partial("_TableMonthly")
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card customShadow">
+            <div class="card-body">
+                    <fieldset>
+                        <legend><small> <input type="radio" name="choice" checked="checked" id="keihenRadio" onchange="choice('Keihen')" /> <label for="keihenRadio" style="margin: 0px;">Keihen</label></small></legend>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group md">
+                                <button class="btn btn-md btn-primary" id="btnSearchKeihen" onclick="javascript: doSearchKeihen()">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2 row justify-content-center">
+                        <div class="table-responsive" style="margin-bottom: 10px; border-radius: 7px 7px 0px 0px;">
+                            <div class="tableScroll" id="tabelKeihen" style="min-height: 381px !important">
+                                @Html.Partial("_TableKeihen")
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row customContainer" style="margin-top: -10px;">
+    <div class="col-12 col-sm-12 col-md-12">
+        <div class="form-group-sm text-right">
+            <button class="btn btn-primary" id="executeBtn"onclick="javascript: btnExecute()" style="box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.15);">Execute</button>
+        </div>
+    </div>
+</div>

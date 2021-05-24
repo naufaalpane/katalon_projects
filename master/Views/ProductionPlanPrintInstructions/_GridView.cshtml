@@ -1,0 +1,58 @@
+﻿@using GPPSU.Models.ProductionPlanPrintInstructions;
+@{
+    List<ProductionPlanPrintInstructions> listData = (List<ProductionPlanPrintInstructions>)ViewData["ListData"];
+
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#checkall").click(function () {
+            $(".grid-checkbox").prop("checked", $("#checkall").is(":checked"));
+        });
+
+        $(".grid-checkbox").click(function () {
+            $("#checkall").prop("checked", $('.grid-checkbox:not(#checkall)').not(':checked').length == 0);
+        });
+    });
+</script>
+
+<div class="table-responsive" style="margin-bottom: 10px; border-radius: 7px 7px 0px 0px;">
+    <div class="tableScroll">
+        <table class="customTable text-center" width="100%">
+            <thead>
+                <tr>
+                    <th class="grid-checkbox-col" style="width: 100px;">
+                        <input class="grid-checkboxDetail ace initialBtn" type="checkbox" id="checkall" />
+                        <span class="lbl" title="Choose"></span>
+                    </th>
+                    <th>Line Code</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (listData == null || listData.Count == 0)
+                {
+                    <tr>
+                        <td colspan="11">No Data Found</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (ProductionPlanPrintInstructions data in listData)
+                    {
+                        <tr>
+
+                            <td>
+                                <input name="chkRow" type="checkbox" class="grid-checkbox ace grid-checkbox-body initialBtn" data-lineCD="@data.LINE_CD" />
+                                <span class="lbl"></span>
+                            </td>
+
+                            <td>@data.LINE_NAME</td>
+
+
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

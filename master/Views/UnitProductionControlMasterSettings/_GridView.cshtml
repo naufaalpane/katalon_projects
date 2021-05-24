@@ -1,0 +1,119 @@
+﻿@using GPPSU.Models.Common;
+@using GPPSU.Models.UnitProductionControlMasterSettings;
+
+@{
+    PagingModel page = ViewData["Paging"] != null ? (PagingModel)ViewData["Paging"] : new PagingModel(0, 1, 10);
+
+    List<UnitProductionControlMasterSettings> listData = (List<UnitProductionControlMasterSettings>)ViewData["UnitProdRepoData"] != null ? (List<UnitProductionControlMasterSettings>)ViewData["UnitProdRepoData"] : new List<UnitProductionControlMasterSettings>();
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#checkall").click(function () {
+            $(".grid-checkbox").prop("checked", $("#checkall").is(":checked"));
+        });
+
+        $(".grid-checkbox").click(function () {
+            $("#checkall").prop("checked", $('.grid-checkbox:not(#checkall)').not(':checked').length == 0);
+        });
+    });
+</script>
+
+<div class="customContainer" style="margin-top: -10px;">
+    <div class="col-md-12">
+        <div class="card customShadow">
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6 col-6 col-sm-6">
+                        <button id="btnUpload" type="button" class="btn btn-info initialBtn">Upload</button>
+                        <button type="button" id="btn-download" class="btn btn-primary initialBtn" onclick="onDownload()">Download</button>
+                    </div>
+                    <div class="col-md-6 col-6 col-sm-6 text-right">
+                        <button class="btn btn-md btn-primary initialBtn" id="insertLine">Add</button>
+                        <button class="btn btn-danger initialBtn" id="btnDelDtl">Delete</button>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-12">
+                        <div class="table-responsive customTableBorder">
+                            <div class="tableScroll">
+                                <table class="customTable text-center" id="tblDetail" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th class="grid-checkbox-col" style="width: 40px;">
+                                                <input class="grid-checkboxDetail ace initialBtn" type="checkbox" id="checkall" />
+                                                <span class="lbl" title="Choose"></span>
+                                            </th>
+                                            <th>Action</th>
+                                            <th>Car Family Code</th>
+                                            <th>Parts No.</th>
+                                            <th>Line Code</th>
+                                            <th>Status Code</th>
+                                            <th>Parts Name</th>
+                                            <th>Unit Sign</th>
+                                            <th>T/C (from)</th>
+                                            <th>T/C (to)</th>
+                                            <th>Created By</th>
+                                            <th>Created Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (listData == null || listData.Count == 0)
+                                        {
+                                            <tr>
+                                                <td colspan="11">No Data Found</td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            foreach (UnitProductionControlMasterSettings data in listData)
+                                            {
+                                                <tr>
+                                                    <td class="text-center grid-checkbox-col">
+                                                        <input name="chkRow" type="checkbox" class="grid-checkbox ace grid-checkbox-body initialBtn" value="@data.SEQ_NO"
+                                                               data-companyCd="@data.COMPANY_CD" data-cfc="@data.CFC" data-partsno="@data.PART_NO" data-linecd="@data.LINE_CD" data-SeqNo="@data.SEQ_NO"/>
+                                                        <span class="lbl"></span>
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn initialBtn btn-md btn-outline-primary pt-0 pb-0 pl-1 pr-1" title="Edit" id="editLine" data-SeqNo="@data.SEQ_NO">
+                                                            <small><i class="fa fa-pen"></i></small>
+                                                        </button>
+                                                        <button class="btn initialBtn btn-md btn-outline-info pt-0 pb-0 pl-1 pr-1" title="Copy Line" id="copyLine">
+                                                            <small><i class="fa fa-copy"></i></small>
+                                                        </button>
+                                                        <button class="btn initialBtn btn-md btn-outline-warning pt-0 pb-0 pl-1 pr-1" title="Delete"
+                                                            onclick="onDeleteSingle('@data.COMPANY_CD', '@data.CFC', '@data.PART_NO','@data.LINE_CD','@data.SEQ_NO')">
+                                                            <small><i class="fa fa-trash"></i></small>
+                                                        </button>
+                                                    </td>
+                                                    <td>@data.CFC</td>
+                                                    <td>@data.PART_NO</td>
+                                                    <td>@data.LINE_CD</td>
+                                                    <td>@data.STATUS_CD</td>
+                                                    <td>@data.PART_NAME</td>
+                                                    <td>@data.UNIT_SIGN</td>
+                                                    <td>@data.TC_FROM</td>
+                                                    <td>@data.TC_TO</td>
+                                                    <td>@data.CREATED_BY</td>
+                                                    <td>@data.CREATED_DT_STR</td>
+
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row text-right">
+                    <div class="col-md-12">
+                        <div class="form-group-sm">
+                            @Html.Partial("_UIPaging", page)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

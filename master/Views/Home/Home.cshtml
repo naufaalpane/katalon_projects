@@ -1,0 +1,64 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section HeadScript{
+    <style>
+        #widget-content
+        {
+            margin-top: 8px;
+        }
+        
+        .widget-header
+        {
+            color: #000 !important;
+        }
+        
+        .widget-box
+        {
+            margin-bottom: 12px !important;
+        }
+        
+        li.divider
+        {
+            border: 2px solid #e5e5e5;   
+        }
+    </style>
+}
+<p></p>
+<div class="row customContainer mt-4">
+    <section class="col-lg-9 connectedSortable">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-chart-pie mr-1"></i>
+                    Application Desk
+                    </h3>
+            </div>
+            <div class="card-body">
+                <img src="@Url.Content("~/Content/Bootstrap4/images/desk.jpg")" style="width: 100%; height: auto;" />
+                    
+            </div>
+        </div>
+    </section>  
+    <section class="col-lg-3">
+        <div class="card">
+            <div class="card-header">
+               <h3 class="card-title">
+                  <i class="fas fa-life-ring mr-1"></i>
+                  IT Helpdesk
+                </h3> 
+            </div>
+            <div class="card-body">
+                 <strong>We're here to help.</strong>
+                    <br />
+                    For Application assistance, please contact:
+                    <br />
+                    <i class="fa fa-envelope"></i> 
+                    <a href="mailto:app.helpdesk@toyota.co.id">app.helpdesk@toyota.co.id</a>, 
+                    <i class="fa fa-phone"></i> 
+                    602020
+            </div>
+        </div>
+    </section> 
+</div>

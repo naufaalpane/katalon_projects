@@ -1,0 +1,115 @@
+﻿@using System;
+@using Toyota.Common.Web.Platform;
+@using GPPSU.Controllers;
+@using GPPSU.Commons.Constants;
+@using GPPSU.Models.HEIJUNKACodeNameMasterSettings;
+
+@using GPPSU.Models.Common;
+@{
+    PagingModel page = ViewData["Paging"] != null ? (PagingModel)ViewData["Paging"] : new PagingModel(0, 1, 10);
+    List<HEIJUNKACodeNameMasterSettings> listData = (List<HEIJUNKACodeNameMasterSettings>)ViewData["HEIJUNKAData"];
+
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#checkall").click(function () {
+            $(".grid-checkbox").prop("checked", $("#checkall").is(":checked"));
+        });
+
+        $(".grid-checkbox").click(function () {
+            $("#checkall").prop("checked", $('.grid-checkbox:not(#checkall)').not(':checked').length == 0);
+        });
+    });
+</script>
+
+
+@*<div class="customContainer" style="margin-top: -10px;">*@
+    <div class="col-md-12">
+        @*<div class="card customShadow">
+            <div class="card-body">*@
+                <div class="row mb-3">
+                    <div class="col-md-6 col-6 col-sm-6">
+                      
+                    </div>
+                    <div class="col-md-6 col-6 col-sm-6 text-right">
+                        <button class="btn btn-md btn-primary initialBtn" id="insertLine">Add</button>
+                        <button class="btn btn-danger initialBtn" id="btnDelDtl">Delete</button>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-12">
+                        <div class="table-responsive customTableBorder">
+                            <div class="tableScroll" id="tScrollHead">
+                                <table class="customTable text-center" id="tblDetail" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th class="pl-3 pr-3">
+                                                <input class="grid-checkboxDetail ace initialBtn" type="checkbox" id="checkall" />
+                                                <span class="lbl" title="Choose"></span>
+                                            </th>
+                                            <th>Action</th>
+                                            <th>HEIJUNKA Code</th>
+                                            <th>HEIJUNKA Name</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (listData == null || listData.Count == 0)
+                                        {
+                                            <tr>
+                                                <td colspan="11">No Data Found</td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            foreach (HEIJUNKACodeNameMasterSettings data in listData)
+                                            {
+                                                <tr>
+                                                    <td class="text-center grid-checkbox-col">
+                                                        <input name="chkRow" type="checkbox" class="grid-checkbox ace grid-checkbox-body initialBtn"
+                                                               data-heijunkaCd="@data.HEIJUNKA_CD" data-companyCd="@data.COMPANY_CD" />
+                                                        <span class="lbl"></span>
+
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn initialBtn btn-md btn-outline-primary pt-0 pb-0 pl-1 pr-1" title="Edit" id="editLine">
+                                                            <small><i class="fa fa-pen"></i></small>
+                                                        </button>
+                                                        <button class="btn initialBtn btn-md btn-outline-info pt-0 pb-0 pl-1 pr-1" title="Copy Line" id="copyLine">
+                                                            <small><i class="fa fa-copy"></i></small>
+                                                        </button>
+                                                        <button class="btn initialBtn btn-md btn-outline-warning pt-0 pb-0 pl-1 pr-1" title="Delete"
+                                                                onclick="onDeleteSingle('@data.HEIJUNKA_CD', '@data.COMPANY_CD')">
+                                                            <small><i class="fa fa-trash"></i></small>
+                                                        </button>
+                                                    </td>
+                                                    <td id="textHeijunkaCd">@data.HEIJUNKA_CD</td>
+                                                    <td id="textHeijunkaName">@data.HEIJUNKA_NAME</td>
+
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row text-right">
+                    <div class="col-md-12">
+                        <div class="form-group-sm">
+                            @Html.Partial("_UIPaging", page)
+                        </div>
+                    </div>
+                </div>
+            @*</div>
+        </div>*@
+    </div>
+@*</div>*@
+
+<script type="text/javascript">
+    $("#tScrollBody").scroll(function () {
+        $("#tScrollHead").scrollLeft($("#tScrollBody").scrollLeft());
+    });
+</script>

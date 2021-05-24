@@ -1,0 +1,85 @@
+.message {
+  overflow-y: auto;
+  max-height: 100px;
+}
+.message .collapse, .message .collapsing {
+  height: 1.65rem; /* [NUM_OF_LINES] x [LINE_HEIGHT] */
+  margin: 0.1rem;
+}
+
+.message .collapse {
+  position: relative; /* For ...'s content absolute positioning */
+  display: block;
+  overflow: hidden;
+}
+
+.message .collapse:before {
+    content: ' ...';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+  }
+
+.message .collapse.show {
+    height: auto; /* You need to reset the height when not collapsed */
+  }
+
+.message .collapse.show:before {
+    display: none; /* Of course you don't want to display ... */
+  }
+
+#collapseButton a.collapsed:after {
+  font-weight: bold;
+  color: #dc3545;
+  content: '\25BD'; /*'+ Show More';*/
+}
+
+#collapseButton a:not(.collapsed):after {
+  font-weight: bold;
+  color: #dc3545;
+  content: '\25B3'; /*'- Show Less';*/
+}
+
+.alert {
+  position: relative;
+  padding: 0.25rem 0.75rem;
+  margin-bottom: 0.25rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+}
+
+.alert-success {
+  color: #155724;
+  background-color: #d4edda !important;
+  border-color: #c3e6cb;
+}
+
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da !important;
+  border-color: #f5c6cb;
+}
+
+.alert-info {
+  color: #0c5460;
+  background-color: #d1ecf1 !important;
+  border-color: #bee5eb;
+}
+
+.alert-warning {
+  color: #856404;
+  background-color: #fff3cd !important;
+  border-color: #ffeeba;
+}
+
+.alert-dismissible {
+  padding-right: 3.625rem;
+}
+
+.alert-dismissible .close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.25rem 0.75rem;
+    color: inherit;
+}

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Project>
    <description></description>
-   <name>Epos_Testing_Proj</name>
+   <name>Flow_Cuti</name>
    <tag></tag>
-   <UUID>f8b363b6-6cbb-4359-804c-4abdca3e9415</UUID>
+   <UUID>0c1ee6ab-ac20-4786-a554-ff4c7adb28b6</UUID>
    <migratedVersion>5.9.0</migratedVersion>
    <pageLoadTimeout>0</pageLoadTimeout>
    <sourceContent>

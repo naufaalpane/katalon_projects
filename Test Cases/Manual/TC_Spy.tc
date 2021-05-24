@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description></description>
+   <name>TC_Spy</name>
+   <tag></tag>
+   <comment></comment>
+   <testCaseGuid>9e226804-a3e2-431a-b243-8aa4675c03e7</testCaseGuid>
+   <variable>
+      <defaultValue>'11'</defaultValue>
+      <description></description>
+      <id>b0d5b818-ddd4-4a66-96fe-8d20598f5eb6</id>
+      <masked>false</masked>
+      <name>myInput</name>
+   </variable>
+</TestCaseEntity>

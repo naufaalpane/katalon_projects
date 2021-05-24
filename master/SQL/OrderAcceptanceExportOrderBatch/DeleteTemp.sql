@@ -1,1 +1,0 @@
-﻿delete from TB_T_EXPORT_ORDER_ATTACHMENT

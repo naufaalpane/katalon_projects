@@ -1,9 +1,0 @@
-﻿exec @RetVal = dbo.sp_UnitProductionPlanHEIJUNKAMaster_Update
-	@@COMPANY_CD = @companyCode,
-	@@LINE_CD = @lineCd,
-	@@CFC =@cfc,
-	@@PART_NO = @partNo,
-	@@HEIJUNKA_CD = @heijunkaCd,
-	@@SUM_SIGN = @sumSign, 
-	@@userId = @userId,
-	@@ErrMesg = @ErrMesg output

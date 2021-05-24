@@ -1,1 +1,0 @@
-# katalon_projects
